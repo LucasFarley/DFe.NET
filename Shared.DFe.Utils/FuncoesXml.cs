@@ -46,6 +46,7 @@ namespace DFe.Utils
 
         // https://github.com/ZeusAutomacao/DFe.NET/issues/610
         private static readonly Hashtable CacheSerializers = new Hashtable();
+        private static readonly object cacheLock = new object();
 
         /// <summary>
         ///     Serializa a classe passada para uma string no form
