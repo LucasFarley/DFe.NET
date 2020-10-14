@@ -115,6 +115,10 @@ namespace FastReport
     private void PageHeader1_BeforePrint(object sender, EventArgs e)
     {
       var varDocModel = (int)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.mod&quot;);
+      if (varDocModel == 67) {
+          Text28.Text = &quot;67&quot;;
+          Text213.Text = &quot;67&quot;;
+      }
       #region Banda inicial sempre deve aparecer!
       switch(Convert.ToInt32((tpCTe)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.tpCTe&quot;)))
       {
