@@ -114,6 +114,7 @@ namespace FastReport
 
     private void PageHeader1_BeforePrint(object sender, EventArgs e)
     {
+      var varDocModel = (int)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.mod&quot;);
       #region Banda inicial sempre deve aparecer!
       switch(Convert.ToInt32((tpCTe)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.tpCTe&quot;)))
       {
@@ -159,12 +160,22 @@ namespace FastReport
       if (string.IsNullOrEmpty(cnpjTomador))
         cnpjTomador = ((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.toma4.CPF&quot;));
       
-      int toma = 4;      
-      if ((tomaBase3)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.tomaBase3&quot;) != null)
+      int toma = 99;      
+      if ((tomaBase3)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.tomaBase3&quot;) != null) {
         toma = Convert.ToInt32((toma)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.tomaBase3.toma&quot;));
-      else if ((toma?)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.toma4.toma&quot;) != null)
-        toma = Convert.ToInt32((toma)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.toma4.toma&quot;));
-            
+      } else if (Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.toma4&quot;) != null){
+        if ((toma?)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.toma4.toma&quot;) != null) {
+          toma = Convert.ToInt32((toma)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.toma4.toma&quot;));
+        }
+      } 
+      if (toma == 99) {
+        if (varDocModel == 67) {
+          toma = 9;
+        } else {
+          toma = 4;
+        }
+      }
+      
       switch (toma)
       {
         case 0: //REMETENTE
@@ -222,6 +233,17 @@ namespace FastReport
           Text127.Text = &quot;[cteProc.CTe.infCte.ide.toma4.IE]&quot;;
           Text128.Text = FormatarCampo((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.toma4.fone&quot;), 'f');
           
+          break;
+        case 9: //Tomador CTeOS
+          Text44.Text = &quot;OUTROS&quot;;
+          Text118.Text = &quot;[cteProc.CTe.infCte.toma.xNome]&quot;;
+          Text119.Text = &quot;[cteProc.CTe.infCte.toma.enderToma.xMun] - [cteProc.CTe.infCte.toma.enderToma.ProxyUF]&quot;;
+          Text120.Text = FormatarCampo(((Int64)Report.GetColumnValue(&quot;cteProc.CTe.infCte.toma.enderToma.CEP&quot;)).ToString(), 'c');
+          Text121.Text = &quot;[cteProc.CTe.infCte.toma.enderToma.xLgr], [cteProc.CTe.infCte.toma.enderToma.nro] [cteProc.CTe.infCte.toma.enderToma.xCpl]&quot;;
+          Text123.Text = &quot;[cteProc.CTe.infCte.toma.enderToma.xPais] - [cteProc.CTe.infCte.toma.enderToma.cPais]&quot;;            
+          Text126.Text = FormatarCampo(cnpjTomador,'d');
+          Text127.Text = &quot;[cteProc.CTe.infCte.toma.IE]&quot;;
+          Text128.Text = FormatarCampo((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.toma.fone&quot;), 'f');
           break;
       }
       
@@ -457,9 +479,13 @@ namespace FastReport
       #region Banda das observações do contribuite
       if (dataBandObservacao.Visible)
       {
+        string infAdicionais = (string)Report.GetColumnValue(&quot;cteProc.CTe.infCte.compl.xObs&quot;);
+
+	      infAdicionais = infAdicionais.Replace(&quot;[&quot;,&quot;[\&quot;[&quot;).Replace(&quot;]&quot;,&quot;]\&quot;]&quot;);
         if ((Boolean)Report.GetParameterValue(&quot;QuebrarLinhasObservacao&quot;))
-          Text168.Text = ((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.compl.xObs&quot;)).Replace(&quot;;&quot;, Environment.NewLine);;         
+          infAdicionais = infAdicionais.Replace(&quot;;&quot;, Environment.NewLine);;         
         
+        Text168.Text = infAdicionais;
         Text185.Visible = ((Boolean)Report.GetParameterValue(&quot;DoocumentoCancelado&quot;));
         Text186.Visible = Convert.ToInt32((TipoAmbiente)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.tpAmb&quot;)) == 2;
       }
@@ -469,9 +495,26 @@ namespace FastReport
       if (dataBandRodoviario.Visible)
       {
         Text183.Text = &quot;NÃO&quot;;
-        if ((Boolean)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal.lotaSpecified&quot;))
-          if (Convert.ToInt32((Nullable&lt;lota&gt;)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal.lota&quot;)) == 1)
-            Text183.Text = &quot;SIM&quot;;
+          if( varDocModel != 67 ){
+            if ( Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal&quot;) != null ){
+              if (!string.IsNullOrEmpty((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal.RNTRC&quot;))){
+                Text181.Text = (String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal.RNTRC&quot;);
+              }
+              if (!string.IsNullOrEmpty((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal.CIOT&quot;))){
+                Text182.Text = (String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal.CIOT&quot;);
+              }
+              if ((Boolean)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal.lotaSpecified&quot;)){
+                if (Convert.ToInt32((Nullable&lt;lota&gt;)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal.lota&quot;)) == 1){
+                  Text183.Text = &quot;SIM&quot;;
+                }
+              }
+              //Comentado por Lucas Farley
+              //if (!string.IsNullOrEmpty((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal.dPrev&quot;))){
+                //Text184.Text = (DateTime)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal.dPrev&quot;);
+              //}
+            }
+        }
+        
       }
       #endregion
           
@@ -484,7 +527,8 @@ namespace FastReport
       while (dsObsCont.HasMoreRows)
       {       
         Text173.Text += ((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.compl.ObsCont.xCampo&quot;)) + Environment.NewLine;
-        string texto = ((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.compl.ObsCont.xTexto&quot;));       
+        string texto = ((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.compl.ObsCont.xTexto&quot;));  
+        texto = texto.Replace(&quot;[&quot;,&quot;[\&quot;[&quot;).Replace(&quot;]&quot;,&quot;]\&quot;]&quot;);
         while (texto.Length &gt; 70)
         {
           Text173.Text += Environment.NewLine;
@@ -520,14 +564,14 @@ namespace FastReport
     
     private void dataBandRodoviario_BeforePrint(object sender, EventArgs e)
     {
-      if (!dataBandRodoviario.Visible)
-        return;
+      //if (!dataBandRodoviario.Visible)
+      //  return;
       
-      var _rodo = (rodo)(ContainerModal)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal&quot;);
+      //var _rodo = (rodo)(ContainerModal)Report.GetColumnValue(&quot;cteProc.CTe.infCte.infCTeNorm.infModal.ContainerModal&quot;);
       
-      Text181.Text = _rodo.RNTRC;
-      Text182.Text = _rodo.CIOT;
-      Text184.Text = _rodo.dPrev.HasValue ? _rodo.dPrev.Value.ToString(&quot;dd/MM/yyyy HH:mm&quot;) : string.Empty;
+      //Text181.Text = _rodo.RNTRC;
+      //Text182.Text = _rodo.CIOT;
+      //Text184.Text = _rodo.dPrev.HasValue ? _rodo.dPrev.Value.ToString(&quot;dd/MM/yyyy HH:mm&quot;) : string.Empty;
     }
 
     private void dataBandAereo_BeforePrint(object sender, EventArgs e)
