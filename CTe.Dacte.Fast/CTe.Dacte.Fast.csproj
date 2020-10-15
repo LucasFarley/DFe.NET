@@ -73,10 +73,6 @@
       <Project>{c86e3921-f0b8-4bfe-9ef1-0e9084326b13}</Project>
       <Name>CTe.Classes</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CTe.Dacte.Base\CTe.Dacte.Base.csproj">
-      <Project>{e46eca77-8732-4d99-9460-fa5e2cd90266}</Project>
-      <Name>CTe.Dacte.Base</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

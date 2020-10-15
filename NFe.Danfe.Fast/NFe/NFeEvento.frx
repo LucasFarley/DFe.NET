@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" ReferencedAssemblies="System.dll&#13;&#10;System.Drawing.dll&#13;&#10;System.Windows.Forms.dll&#13;&#10;System.Data.dll&#13;&#10;System.Xml.dll&#13;&#10;NFe.Classes.dll&#13;&#10;NFe.Utils.dll&#13;&#10;DFe.Classes.dll" ReportInfo.Created="12/16/2016 10:44:33" ReportInfo.Modified="08/15/2018 13:57:20" ReportInfo.CreatorVersion="2017.4.1.0">
+<Report ScriptLanguage="CSharp" ReferencedAssemblies="System.dll&#13;&#10;System.Drawing.dll&#13;&#10;System.Windows.Forms.dll&#13;&#10;System.Data.dll&#13;&#10;System.Xml.dll&#13;&#10;NFe.Classes.dll&#13;&#10;NFe.Utils.dll&#13;&#10;DFe.Classes.dll&#13;&#10;CTe.Classes.dll" ReportInfo.Created="12/16/2016 10:44:33" ReportInfo.Modified="08/15/2018 13:57:20" ReportInfo.CreatorVersion="2017.4.1.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,6 +18,8 @@ using NFe.Utils;
 using DFe.Classes.Entidades;
 using DFe.Classes.Flags;
 using NFe.Classes.Servicos.Tipos;
+using CTe.Classes.Servicos.Evento.Metadata;
+using CTe.Classes.Servicos.Evento.Flags;
 
 namespace FastReport
 {
@@ -67,6 +69,8 @@ namespace FastReport
       } catch{
         Memo53.Text=&quot;&quot;;
       }
+      
+      
       if (Report.GetColumnValue(&quot;procEventoNFe.evento.infEvento.tpEvento&quot;).ToString() == &quot;110111&quot;)
       {
         Memo40.Text=&quot;CANCELAMENTO DE NF-e&quot;;
@@ -74,7 +78,8 @@ namespace FastReport
       }
       else
       {
-        Memo40.Text=&quot;CARTA DE CORREÇÃO ELETRÔNICA&quot;;
+        var eventInfo = new EventMetaInfo((CTeTipoEvento)Report.GetColumnValue(&quot;procEventoNFe.evento.infEvento.tpEvento&quot;), true);
+        Memo40.Text = eventInfo.UpperCaseName;
         BandCondicoesUso.Visible=true;
       }
       try { 

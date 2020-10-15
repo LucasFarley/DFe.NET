@@ -226,6 +226,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Servicos\Evento\Flags\CTeTipoEvento.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Servicos\Evento\infEventoEnv.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Servicos\Evento\infEventoRet.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Servicos\Evento\Metadata\EventMetaInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Servicos\Evento\retEnvEvento.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Servicos\Evento\retEventoCTe.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Servicos\Inutilizacao\infInutEnv.cs" />

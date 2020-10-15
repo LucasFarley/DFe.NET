@@ -21,6 +21,7 @@ using CTe.Classes.Servicos.Evento.Flags;
 using CTe.Classes.Informacoes;
 using CTe.Classes.Informacoes.Tipos;
 using CTe.Classes.Informacoes.Identificacao;
+using CTe.Classes.Servicos.Evento.Metadata;
 
 namespace FastReport
 {
@@ -80,13 +81,10 @@ namespace FastReport
         
     private void ReportTitle1_BeforePrint(object sender, EventArgs e)
     {
-      Text1.Text = ((CTeTipoEvento)Report.GetColumnValue(&quot;procEventoCTe.eventoCTe.infEvento.tpEvento&quot;) == CTeTipoEvento.Cancelamento) ? &quot;CANCELAMENTO&quot; : &quot;CARTA DE CORREÇÃO ELETRÔNICA&quot;;
-      Text2.Text = ((CTeTipoEvento)Report.GetColumnValue(&quot;procEventoCTe.eventoCTe.infEvento.tpEvento&quot;) == CTeTipoEvento.Cancelamento) ? 
-        &quot;Não possui valor fiscal, simples representação do cancelamento indicado abaixo.&quot; : 
-        &quot;Não possui valor fiscal, simples representação da CC-e indicada abaixo.&quot;;     
-      Text3.Text = ((CTeTipoEvento)Report.GetColumnValue(&quot;procEventoCTe.eventoCTe.infEvento.tpEvento&quot;) == CTeTipoEvento.Cancelamento) ? 
-        &quot;CONSULTE A AUTENTICIDADE DO CANCELAMENTO NO SITE DA SEFAZ AUTORIZADORA.&quot; : 
-        &quot;CONSULTE A AUTENTICIDADE DA CARTA DE CORREÇÃO ELETRÔNICA NO SITE DA SEFAZ AUTORIZADORA&quot;;
+      var eventInfo = new EventMetaInfo((CTeTipoEvento)Report.GetColumnValue(&quot;procEventoCTe.eventoCTe.infEvento.tpEvento&quot;));
+      Text1.Text = eventInfo.UpperCaseName;
+      Text2.Text = eventInfo.GetNoTaxValueMessage();    
+      Text3.Text = eventInfo.GetCheckAuthenticityMessage();
             
       Text6.Text = Convert.ToInt32(((ModeloDocumento)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.mod&quot;))).ToString();
             
