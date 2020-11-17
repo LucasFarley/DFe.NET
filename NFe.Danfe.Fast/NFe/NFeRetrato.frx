@@ -1161,7 +1161,7 @@ namespace FastReport
       <TextObject Name="Memo24" Top="156.85" Width="253.23" Height="17.01" Text="[NFe.NFe.infNFe.emit.IE]" Padding="5, 1, 5, 1" VertAlign="Bottom" Font="Times New Roman, 8pt"/>
       <TextObject Name="Memo25" Left="253.23" Top="147.4" Width="253.23" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="INSCRIÇÃO ESTADUAL DO SUBSTITUTO TRIBUTÁRIO" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
       <TextObject Name="Memo26" Left="253.23" Top="156.85" Width="253.23" Height="17.01" Text="[NFe.NFe.infNFe.emit.IEST]" Padding="5, 1, 5, 1" VertAlign="Bottom" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Memo27" Left="506.46" Top="147.4" Width="238.11" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="CNPJ" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Memo27" Left="506.46" Top="147.4" Width="238.11" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="CNPJ / CPF" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
       <TextObject Name="Memo28" Left="506.46" Top="156.85" Width="238.11" Height="17.01" Text="[FormatarCampo([NFe.NFe.infNFe.emit.CNPJ],'d')]" Padding="5, 1, 5, 1" VertAlign="Bottom" Font="Times New Roman, 8pt"/>
       <PictureObject Name="poEmitLogo" Left="1.89" Top="37.8" Width="98.27" Height="81.26" Fill.Color="White" SizeMode="StretchImage" Image=""/>
       <BarcodeObject Name="BarcodeChave" Left="445.66" Top="5.67" Width="277.07" Height="37.8" AutoSize="false" Text="123456789012345678946546546579878454676546546546546556465" ShowText="false" AllowExpressions="true" Barcode="Code128" Barcode.CalcCheckSum="false" Barcode.AutoEncode="true"/>
