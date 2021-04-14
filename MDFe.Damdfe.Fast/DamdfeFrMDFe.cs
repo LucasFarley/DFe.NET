@@ -41,7 +41,7 @@ namespace MDFe.Damdfe.Fast
 {
     public class DamdfeFrMDFe
     {
-        protected Report Relatorio;
+        public Report Relatorio;
 
         public DamdfeFrMDFe(MDFeProcMDFe proc, ConfiguracaoDamdfe config, string arquivoRelatorio = null)
         {

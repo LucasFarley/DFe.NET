@@ -41,7 +41,7 @@ namespace CTe.Dacte.Fast
 {
     public class DacteFrCte
     {
-        protected Report Relatorio;
+        public Report Relatorio;
 
         public DacteFrCte()
         {
