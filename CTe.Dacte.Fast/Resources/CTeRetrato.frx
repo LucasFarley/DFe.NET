@@ -85,6 +85,31 @@ namespace FastReport
       return retorno;      
     }   
         
+    private string GetModalName(modal procModal)
+    {
+            string name = &quot;Rodoviário&quot;;
+
+            switch (procModal)
+            {
+                case modal.aereo:
+                    name = &quot;Aéreo&quot;;
+                    break;
+                case modal.aquaviario:
+                    name = &quot;Aquaviário&quot;;
+                    break;
+                case modal.ferroviario:
+                    name = &quot;Ferroviário&quot;;
+                    break;
+                case modal.dutoviario:
+                    name = &quot;Dutoviário&quot;;
+                    break;
+                case modal.multimodal:
+                    name = &quot;Multimodal&quot;;
+                    break;
+            }
+
+            return name.ToUpper();
+    }
     private void _StartReport(object sender, EventArgs e)
     {               
       var _tpCTe = (tpCTe)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.tpCTe&quot;);
