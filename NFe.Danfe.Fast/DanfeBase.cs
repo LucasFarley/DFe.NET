@@ -90,7 +90,7 @@ namespace NFe.Danfe.Fast
         /// Converte o DANFE para PDF e copia para o stream
         /// </summary>
         /// <param name="outputStream">Variável do tipo Stream para output</param>
-        public void ExportarPdf(Stream outputStream)
+        public void ExportarPdf(Stream outputStream, bool progress = true)
         {
             Relatorio.Prepare();
             var varPDFExport = new PDFExport() { ShowProgress = progress };
@@ -125,6 +125,13 @@ namespace NFe.Danfe.Fast
             Relatorio.Prepare();
             Relatorio.Export(exportBase, outputStream);
             outputStream.Position = 0;
+        }
+        /// <summary>
+        /// Obtem o objeto Report para ser acoplado em outras aplicações
+        /// </summary>
+        public Report GetReport()
+        {
+            return Relatorio;
         }
     }
 }
