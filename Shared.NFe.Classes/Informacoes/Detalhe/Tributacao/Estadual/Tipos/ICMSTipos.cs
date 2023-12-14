@@ -209,7 +209,14 @@ namespace NFe.Classes.Informacoes.Detalhe.Tributacao.Estadual.Tipos
         /// </summary>
         [Description("ICMS cobrado anteriormente por substituição tributária")]
         [XmlEnum("60")]
-        Cst60,
+        Cst60,        
+        
+        /// <summary>
+        /// 60 - ICMS cobrado anteriormente por substituição tributária
+        /// </summary>
+        [Description("Tributação Monofásica sobre Combustíveis cobrada anteriormente.")]
+        [XmlEnum("61")]
+        Cst61,
 
         /// <summary>
         /// 60 - ICMS cobrado anteriormente por substituição tributária

@@ -47,6 +47,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\Estadual\ICMS40.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\Estadual\ICMS51.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\Estadual\ICMS60.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)informacoes\detalhe\tributacao\estadual\ICMS61.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\Estadual\ICMS70.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\Estadual\ICMS90.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\Estadual\ICMSPart.cs" />

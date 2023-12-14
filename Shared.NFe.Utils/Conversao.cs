@@ -193,7 +193,9 @@ namespace NFe.Utils
                     return "51";
                 case Csticms.Cst60:
                 case Csticms.CstRep60:
-                    return "60";
+                    return "60";                
+                case Csticms.Cst61:
+                    return "61";
                 case Csticms.Cst70:
                     return "70";
                 case Csticms.Cst90:
