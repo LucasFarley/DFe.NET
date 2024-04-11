@@ -1154,7 +1154,7 @@ namespace FastReport
       <BarcodeObject Name="BarcodeChave" Left="445.66" Top="5.67" Width="277.07" Height="37.8" AutoSize="false" Text="123456789012345678946546546579878454676546546546546556465" ShowText="false" AllowExpressions="true" Barcode="Code128" Barcode.CalcCheckSum="false" Barcode.AutoEncode="true"/>
       <BarcodeObject Name="BarCodeContigencia" Left="445.66" Top="83.16" Width="277.07" Height="34.02" ShiftMode="WhenOverlapped" AutoSize="false" Text="123456789012345678946546546579878454676546546546546556465" ShowText="false" AllowExpressions="true" Barcode="Code128" Barcode.CalcCheckSum="false" Barcode.AutoEncode="true"/>
       <TextObject Name="Text1" Left="94.4" Top="3" Width="214.83" Height="39.75" Text="[NFe.NFe.infNFe.emit.xNome]" HorzAlign="Center" Font="Times New Roman, 8pt, style=Bold"/>
-      <TextObject Name="Text209" Left="94.44" Top="95.88" Width="215.34" Height="23.08" Text="[NFe.NFe.infNFe.emit.enderEmit.fone]" Padding="1, 0, 1, 1" Format="Custom" Format.Format="(00) 00000-0000" HorzAlign="Center" Font="Times New Roman, 7pt"/>
+      <TextObject Name="Text209" Left="94.44" Top="95.88" Width="215.34" Height="23.08" Text="[FormatarCampo(ToString([NFe.NFe.infNFe.emit.enderEmit.fone]), 'f')]" Padding="1, 0, 1, 1" Format="Custom" Format.Format="(00) 00000-0000" HorzAlign="Center" Font="Times New Roman, 7pt"/>
     </PageHeaderBand>
     <DataBand Name="Destinatario" Top="255.9" Width="744.66" Height="96.27">
       <TextObject Name="Memo29" Top="16.9" Width="468.66" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="NOME / RAZÃO SOCIAL" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
