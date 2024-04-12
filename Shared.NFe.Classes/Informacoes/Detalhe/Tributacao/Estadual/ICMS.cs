@@ -45,6 +45,7 @@ namespace NFe.Classes.Informacoes.Detalhe.Tributacao.Estadual
         ///     <para>N06 (ICMS40) - Grupo Tributação ICMS = 40, 41, 50</para>
         ///     <para>N07 (ICMS51) - Grupo Tributação do ICMS = 51</para>
         ///     <para>N08 (ICMS60) - Grupo Tributação do ICMS = 60</para>
+        ///     <para>N08 (ICMS61) - Grupo Tributação do ICMS = 61</para>
         ///     <para>N09 (ICMS70) - Grupo Tributação do ICMS = 70</para>
         ///     <para>N10 (ICMS90) - Grupo Tributação do ICMS = 90</para>
         ///     <para>
@@ -69,6 +70,7 @@ namespace NFe.Classes.Informacoes.Detalhe.Tributacao.Estadual
         [XmlElement("ICMS40", typeof (ICMS40))]
         [XmlElement("ICMS51", typeof (ICMS51))]
         [XmlElement("ICMS60", typeof (ICMS60))]
+        [XmlElement("ICMS61", typeof (ICMS61))]
         [XmlElement("ICMS70", typeof (ICMS70))]
         [XmlElement("ICMS90", typeof (ICMS90))]
         [XmlElement("ICMSPart", typeof (ICMSPart))]
