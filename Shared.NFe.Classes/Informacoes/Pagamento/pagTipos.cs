@@ -34,8 +34,7 @@
 using System.ComponentModel;
 using System.Xml.Serialization;
 
-namespace NFe.Classes.Informacoes.Pagamento
-{
+namespace NFe.Classes.Informacoes.Pagamento {
     /// <summary>
     ///     Meio de pagamento
     ///     <para>01 - Dinheiro</para>
@@ -50,14 +49,16 @@ namespace NFe.Classes.Informacoes.Pagamento
     ///     <para>14 - Duplicata Mercantil (versão 4.00)</para>
     ///     <para>15 - Boleto Bancário (versão 4.00)</para>
     ///     <para>16 - Depósito Bancário (versão 4.00)</para>
-    ///     <para>17 - Pagamento Instantâneo (PIX) (versão 4.00)</para>
+    ///     <para>17 - Pagamento Instantâneo (PIX) dinâmico (versão 4.00)</para>
     ///     <para>18 - Transferência bancária, Carteira Digital (versão 4.00)</para>
     ///     <para>19 - Programa de fidelidade, Cashback, Crédito Virtual (versão 4.00)</para>
+    ///     <para>20 - Pagamento Instantâneo (PIX) estático</para>
+    ///     <para>21 - Crédito em loja</para>
+    ///     <para>22 - Pagamento eletrônico não informado - falha de hardware do sistema emissor</para>
     ///     <para>90 - Sem pagamento (versão 4.00)</para>
     ///     <para>99 - Outros</para>
     /// </summary>
-    public enum FormaPagamento
-    {
+    public enum FormaPagamento {
         /// <summary>
         /// 01 - Dinheiro
         /// </summary>
@@ -136,31 +137,49 @@ namespace NFe.Classes.Informacoes.Pagamento
         /// </summary>
         [Description("Boleto Bancário")]
         [XmlEnum("15")] fpBoletoBancario = 15,
-        
+
         /// <summary>
         /// 16 - Depósito Bancário
         /// </summary>
         [Description("=Depósito Bancário")]
-        [XmlEnum("16")] fpDepositoBancario= 16,
-        
+        [XmlEnum("16")] fpDepositoBancario = 16,
+
         /// <summary>
-        /// 17 - Pagamento Instantâneo (PIX)
+        /// 17 - Pagamento Instantâneo (PIX) dinâmico
         /// </summary>
-        [Description("Pagamento Instantâneo (PIX)")]
-        [XmlEnum("17")] fpPagamentoInstantaneoPIX = 17,
-        
-         /// <summary>
+        [Description("Pagamento Instantâneo (PIX) dinâmico")]
+        [XmlEnum("17")] fpPagamentoInstantaneoPIXDinamico = 17,
+
+
+        /// <summary>
         /// 18 - Transferência bancária, Carteira Digital
         /// </summary>
         [Description("Transferência bancária, Carteira Digital")]
         [XmlEnum("18")] fpTransferenciabancaria = 18,
-        
-         /// <summary>
+
+        /// <summary>
         /// 19 - Programa de fidelidade, Cashback, Crédito Virtual
         /// </summary>
         [Description("Programa de fidelidade, Cashback, Crédito Virtual")]
         [XmlEnum("19")] fpProgramadefidelidade = 19,
-        
+
+        /// <summary>
+        /// 20 - Pagamento Instantâneo (PIX) estático
+        /// </summary>
+        [Description("Pagamento Instantâneo (PIX) estático")]
+        [XmlEnum("20")] fpPagamentoInstantaneoPIXEstatico = 20,
+
+        /// <summary>
+        /// 21 - Crédito em loja
+        /// </summary>
+        [Description("Crédito em loja")]
+        [XmlEnum("21")] fpCreditoEmLoja = 21,
+
+        /// <summary>
+        /// 22 - Pagamento eletrônico não informado - falha de hardware do sistema emissor
+        /// </summary>
+        [Description("Pagamento eletrônico não informado")]
+        [XmlEnum("22")] fpPagamentoEletronicoNaoInformado = 22,
 
         /// <summary>
         /// 90 - Sem pagamento
@@ -190,8 +209,7 @@ namespace NFe.Classes.Informacoes.Pagamento
     ///     <para>09 - Cabal (versão 4.00)</para>
     ///     <para>99 - Outros</para>
     /// </summary>
-    public enum BandeiraCartao
-    {
+    public enum BandeiraCartao {
         /// <summary>
         /// >01 - Visa
         /// </summary>
@@ -255,6 +273,78 @@ namespace NFe.Classes.Informacoes.Pagamento
         [XmlEnum("09")]
         Cabal = 09,
 
+        [Description("Alelo")]
+        [XmlEnum("10")]
+        Alelo = 10,
+
+        [Description("Banes Card")]
+        [XmlEnum("11")]
+        BanesCard = 11,
+
+        [Description("CalCard")]
+        [XmlEnum("12")]
+        CalCard = 12,
+
+        [Description("Credz")]
+        [XmlEnum("13")]
+        Credz = 13,
+
+        [Description("Discover")]
+        [XmlEnum("14")]
+        Discover = 14,
+
+        [Description("GoodCard")]
+        [XmlEnum("15")]
+        GoodCard = 15,
+
+        [Description("GreenCard")]
+        [XmlEnum("16")]
+        GreenCard = 16,
+
+        [Description("Hiper")]
+        [XmlEnum("17")]
+        Hiper = 17,
+
+        [Description("JcB")]
+        [XmlEnum("18")]
+        JcB = 18,
+
+        [Description("Mais")]
+        [XmlEnum("19")]
+        Mais = 19,
+
+        [Description("MaxVan")]
+        [XmlEnum("20")]
+        MaxVan = 20,
+
+        [Description("Policard")]
+        [XmlEnum("21")]
+        Policard = 21,
+
+        [Description("RedeCompras")]
+        [XmlEnum("22")]
+        RedeCompras = 22,
+
+        [Description("Sodexo")]
+        [XmlEnum("23")]
+        Sodexo = 23,
+
+        [Description("ValeCard")]
+        [XmlEnum("24")]
+        ValeCard = 24,
+
+        [Description("Verocheque")]
+        [XmlEnum("25")]
+        Verocheque = 25,
+
+        [Description("VR")]
+        [XmlEnum("26")]
+        VR = 26,
+
+        [Description("Ticket")]
+        [XmlEnum("27")]
+        Ticket = 27,
+
         /// <summary>
         /// 99 - Outros
         /// </summary>
@@ -268,8 +358,7 @@ namespace NFe.Classes.Informacoes.Pagamento
     ///     <para>1 - Pagamento integrado com o sistema de automação da empresa(Ex.: equipamento TEF, Comércio Eletrônico);</para>
     ///     <para>2 - Pagamento não integrado com o sistema de automação da empresa(Ex.: equipamento POS);</para>
     /// </summary>
-    public enum TipoIntegracaoPagamento
-    {
+    public enum TipoIntegracaoPagamento {
         /// <summary>
         /// 1 - Pagamento integrado com o sistema de automação da empresa(Ex.: equipamento TEF, Comércio Eletrônico)
         /// </summary>
