@@ -61,6 +61,13 @@ namespace NFe.Classes.Informacoes.Emitente
         /// </summary>
         [Description("Regime Normal")]
         [XmlEnum("3")]
-        RegimeNormal = 3
+        RegimeNormal = 3,
+
+        /// <summary>
+        /// 4 – Microempreendedor Individual (MEI)
+        /// </summary>
+        [Description("Microempreendedor Individual (MEI)")] //FIO-I1530
+        [XmlEnum("4")]
+        MicroempreendedorIndividual = 4
     }
 }
