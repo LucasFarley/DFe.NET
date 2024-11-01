@@ -74,6 +74,13 @@ namespace NFe.Classes.Informacoes.Observacoes
         ipSecexRFB = 3,
 
         /// <summary>
+        /// 4 - Secex/RFB
+        /// </summary>
+        [Description("CONFAZ")]
+        [XmlEnum("4")]
+        ipConfaz = 4,
+
+        /// <summary>
         /// 9 - Outros
         /// </summary>
         [Description("Outros")]

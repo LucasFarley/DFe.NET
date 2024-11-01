@@ -5452,6 +5452,7 @@ concessório</xs:documentation>
 1 - Justiça Federal;
 2 - Justiça Estadual;
 3 - Secex/RFB;
+4 - CONFAZ;
 9 - Outros</xs:documentation>
 													</xs:annotation>
 													<xs:simpleType>
@@ -5461,6 +5462,7 @@ concessório</xs:documentation>
 															<xs:enumeration value="1"/>
 															<xs:enumeration value="2"/>
 															<xs:enumeration value="3"/>
+															<xs:enumeration value="4"/>
 															<xs:enumeration value="9"/>
 														</xs:restriction>
 													</xs:simpleType>
