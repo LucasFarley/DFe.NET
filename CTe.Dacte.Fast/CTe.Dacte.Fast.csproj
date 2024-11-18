@@ -35,16 +35,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FastReport, Version=2017.4.3.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="FastReport, Version=2021.2.6.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
       <HintPath>..\..\fiscal_io_libraries\FastReport.Net\FastReport.dll</HintPath>
     </Reference>
-    <Reference Include="FastReport.Bars, Version=2017.4.3.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="FastReport.Bars, Version=2021.2.6.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
       <HintPath>..\..\fiscal_io_libraries\FastReport.Net\FastReport.Bars.dll</HintPath>
     </Reference>
-    <Reference Include="FastReport.Editor, Version=2017.4.3.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="FastReport.Editor, Version=2021.2.6.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
       <HintPath>..\..\fiscal_io_libraries\FastReport.Net\FastReport.Editor.dll</HintPath>
     </Reference>
     <Reference Include="System" />
