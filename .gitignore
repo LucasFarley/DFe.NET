@@ -63,6 +63,7 @@ dlldata.c
 *.sln.docstates
 *.csproj.user
 *.vspscc
+*.dtbcache.json
 
 # NuGet Packages
 *.nupkg
