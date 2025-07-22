@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" ReferencedAssemblies="System.dll&#13;&#10;System.Drawing.dll&#13;&#10;System.Windows.Forms.dll&#13;&#10;System.Data.dll&#13;&#10;System.Xml.dll&#13;&#10;CTe.Classes.dll&#13;&#10;DFe.Classes.dll" StartReportEvent="_StartReport" ReportInfo.Created="07/09/2017 18:15:37" ReportInfo.Modified="03/06/2025 11:52:03" ReportInfo.CreatorVersion="2021.2.6.0">
+<Report ScriptLanguage="CSharp" ReferencedAssemblies="System.dll&#13;&#10;System.Drawing.dll&#13;&#10;System.Windows.Forms.dll&#13;&#10;System.Data.dll&#13;&#10;System.Xml.dll&#13;&#10;CTe.Classes.dll&#13;&#10;DFe.Classes.dll" StartReportEvent="_StartReport" ReportInfo.Created="07/09/2017 18:15:37" ReportInfo.Modified="03/18/2025 11:32:54" ReportInfo.CreatorVersion="2021.2.6.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -524,8 +524,17 @@ namespace FastReport
 	      infAdicionais = infAdicionais.Replace(&quot;[&quot;,&quot;[\&quot;[&quot;).Replace(&quot;]&quot;,&quot;]\&quot;]&quot;);
         if ((Boolean)Report.GetParameterValue(&quot;QuebrarLinhasObservacao&quot;))
           infAdicionais = infAdicionais.Replace(&quot;;&quot;, Environment.NewLine);;         
-        
-        Text168.Text = infAdicionais;
+        var obsContList = Report.GetDataSource(&quot;cteProc.CTe.infCte.compl.ObsCont&quot;);
+        string varFinalObsCont = string.Empty;
+        obsContList.Init();
+        while (obsContList.HasMoreRows)
+        {      
+          string varCampo = ((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.compl.ObsCont.xCampo&quot;));
+          string varTexto = ((String)Report.GetColumnValue(&quot;cteProc.CTe.infCte.compl.ObsCont.xTexto&quot;));
+          varFinalObsCont += (varCampo + &quot;: &quot; + varTexto + &quot;; &quot;);
+          obsContList.Next();
+        }                                                                              
+        Text168.Text = infAdicionais + Environment.NewLine + varFinalObsCont;;
         Text185.Visible = ((Boolean)Report.GetParameterValue(&quot;DoocumentoCancelado&quot;));
         Text186.Visible = Convert.ToInt32((TipoAmbiente)Report.GetColumnValue(&quot;cteProc.CTe.infCte.ide.tpAmb&quot;)) == 2;
       }
