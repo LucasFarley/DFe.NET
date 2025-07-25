@@ -35,7 +35,7 @@ using System.Xml.Serialization;
 namespace CTe.Classes.Informacoes.Tipos
 {
     /// <summary>
-    ///     Tipo do Documento Fiscal (0 - CT-e Normal; 1 - CT-e de Complemento de Valores; 2 - CT-e de Anulação; 3 - CT-e Substituto)
+    ///     Tipo do Documento Fiscal (0 - CT-e Normal; 1 - CT-e de Complemento de Valores; 2 - CT-e de Anulação; 3 - CT-e Substituto; 4 - CT-e)
     /// </summary>
     public enum tpCTe
     {
@@ -46,6 +46,10 @@ namespace CTe.Classes.Informacoes.Tipos
         [XmlEnum("2")]
         Anulacao,
         [XmlEnum("3")]
-        Substituto
+        Substituto,
+        [XmlEnum("4")]
+        Simplificado,
+        [XmlEnum("5")]
+        SubstSimplificado
     }
 }
