@@ -371,6 +371,10 @@ namespace FastReport
       if (dataBandValor.Visible)
       {
         bool aux = true;
+        // Limpa os textos antes de adicionar novos componentes
+        Text203.Text = &quot;&quot;;
+        Text204.Text = &quot;&quot;;
+        
         var comp = Report.GetDataSource(&quot;cteProc.CTe.infCte.vPrest.Comp&quot;); 
         comp.Init();
         while (comp.HasMoreRows)
@@ -1503,26 +1507,26 @@ namespace FastReport
       <TextObject Name="Text133" Left="248.15" Top="1.45" Width="242.25" Height="8.45" Text="OUTRAS CARACTERISTICAS DA CARGA" Font="Times New Roman, 5.25pt"/>
       <TextObject Name="Text135" Left="492.85" Top="1.45" Width="242.25" Height="8.45" Text="VALOR TOTAL DA MERCADORIA" Font="Times New Roman, 5.25pt"/>
     </DataBand>
-    <DataBand Name="dataBandValor" Top="607.35" Width="737.1" Height="65.6">
-      <ShapeObject Name="Shape5" Top="0.45" Width="737.1" Height="61.15"/>
+    <DataBand Name="dataBandValor" Top="607.35" Width="737.1" Height="100.6" CanGrow="true" CanShrink="true">
+      <ShapeObject Name="Shape5" Top="0.45" Width="737.1" Height="96.15" CanGrow="true" CanShrink="true"/>
       <TextObject Name="Text210" Left="1" Top="2.45" Width="735.1" Height="11.45" Text="COMPONENTES DO VALOR DA PRESTAÇÃO DE SERVIÇO" HorzAlign="Center" Font="Times New Roman, 6.75pt"/>
       <LineObject Name="Line42" Left="1" Top="13.9" Width="734.55"/>
-      <LineObject Name="Line53" Left="463.05" Top="13.9" Height="46.25"/>
+      <LineObject Name="Line53" Left="463.05" Top="13.9" Height="81.25" CanGrow="true" CanShrink="true"/>
       <LineObject Name="Line54" Left="463.05" Top="35.25" Width="272.6"/>
       <TextObject Name="Text169" Left="463.5" Top="14.35" Width="251.7" Height="8.45" Text="VALOR TOTAL DO SERVIÇO" Font="Times New Roman, 5.25pt"/>
       <TextObject Name="Text170" Left="463.43" Top="36.52" Width="251.7" Height="8.45" Text="VALOR A RECEBER" Font="Times New Roman, 5.25pt"/>
       <TextObject Name="Text171" Left="464.05" Top="20.35" Width="270.6" Height="12.45" Text="[FormatCurrency([cteProc.CTe.infCte.vPrest.vTPrest],2)]&#13;&#10;&#13;&#10;" HorzAlign="Right" Font="Times New Roman, 8.25pt"/>
-      <LineObject Name="Line62" Left="230.58" Top="13.9" Height="46.25"/>
-      <LineObject Name="Line63" Left="1" Top="26.25" Width="462.05"/>
+      <LineObject Name="Line62" Left="230.58" Top="13.9" Height="81.25" CanGrow="true" CanShrink="true"/>
+      <LineObject Name="Line63" Left="1" Top="26.25" Width="462.05" CanGrow="true" CanShrink="true"/>
       <TextObject Name="Text199" Left="1.45" Top="15.68" Width="104.95" Height="8.9" Text="NOME" Font="Times New Roman, 6.75pt"/>
       <TextObject Name="Text200" Left="231.25" Top="15.68" Width="104.95" Height="8.9" Text="NOME" Font="Times New Roman, 6.75pt"/>
       <TextObject Name="Text201" Left="124.85" Top="15.68" Width="104.95" Height="8.9" Text="VALOR" HorzAlign="Right" Font="Times New Roman, 6.75pt"/>
       <TextObject Name="Text202" Left="357.1" Top="15.68" Width="104.95" Height="8.9" Text="VALOR" HorzAlign="Right" Font="Times New Roman, 6.75pt"/>
-      <TextObject Name="Text203" Left="1" Top="28.25" Width="228.8" Height="30.8" Font="Times New Roman, 6.75pt"/>
-      <TextObject Name="Text204" Left="233.25" Top="28.25" Width="228.8" Height="30.8" Font="Times New Roman, 6.75pt"/>
+      <TextObject Name="Text203" Left="1" Top="28.25" Width="228.8" Height="65.8" CanGrow="true" CanShrink="true" Font="Times New Roman, 6.75pt"/>
+      <TextObject Name="Text204" Left="233.25" Top="28.25" Width="228.8" Height="65.8" CanGrow="true" CanShrink="true" Font="Times New Roman, 6.75pt"/>
       <TextObject Name="Text172" Left="464.05" Top="45.7" Width="270.6" Height="13.45" Text="[FormatCurrency([cteProc.CTe.infCte.vPrest.vRec],2)]" HorzAlign="Right" Font="Times New Roman, 8.25pt"/>
     </DataBand>
-    <DataBand Name="dataBandImpostos" Top="675.62" Width="737.1" Height="52.7">
+    <DataBand Name="dataBandImpostos" Top="710.62" Width="737.1" Height="52.7">
       <ShapeObject Name="Shape7" Top="0.45" Width="737.1" Height="47.25"/>
       <TextObject Name="Text161" Left="1" Top="2.45" Width="735.1" Height="11.45" Text="INFORMAÇÕES RELATIVAS AO IMPOSTO" HorzAlign="Center" Font="Times New Roman, 6.75pt"/>
       <LineObject Name="Line43" Left="1" Top="14.9" Width="734.55"/>
@@ -1541,7 +1545,7 @@ namespace FastReport
       <TextObject Name="Text192" Left="397.9" Top="16.33" Width="77.15" Height="8.45" Text="% RED BC CALC" Font="Times New Roman, 5.25pt"/>
       <LineObject Name="Line60" Left="476.95" Top="14.35" Height="32.35"/>
     </DataBand>
-    <DataBand Name="dataBandDocumentosOriginarios" Top="730.98" Width="737.1" Height="206.8" CanGrow="true" CanShrink="true">
+    <DataBand Name="dataBandDocumentosOriginarios" Top="765.98" Width="737.1" Height="206.8" CanGrow="true" CanShrink="true">
       <TextObject Name="Text198" Left="0.89" Top="14.35" Width="366.88" Height="9.45" Border.Lines="Left, Right" Text="TP DOC                    CPF/CNPJ EMITENTE                 SÉRIE/NRO. DOCUMENTO" Font="Microsoft Sans Serif, 6.75pt"/>
       <TextObject Name="Text206" Left="368.55" Top="14.35" Width="366.88" Height="9.45" Border.Lines="Right" Text="TP DOC                    CPF/CNPJ EMITENTE                 SÉRIE/NRO. DOCUMENTO" Font="Microsoft Sans Serif, 6.75pt"/>
       <TextObject Name="Text193" Left="0.89" Top="23.9" Width="366.88" Height="182.1" Border.Lines="Left, Right, Bottom" CanGrow="true" CanShrink="true" Text="NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0001&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0002&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0003&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0004&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0005&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0006&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0007&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0008&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0009&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0010&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0001&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0002&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0003&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0004&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0005&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0006&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0007&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0008&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0009&#13;&#10;NF-e 000000000   0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0010" Padding="2, 4, 2, 0" Font="Arial Narrow, 6pt, style=Bold"/>
@@ -1549,7 +1553,7 @@ namespace FastReport
       <TextObject Name="Text162" Left="1" Top="2.45" Width="734.1" Height="11.45" Border.Lines="All" Text="DOCUMENTOS ORIGINÁRIO" HorzAlign="Center" Font="Times New Roman, 6.75pt"/>
       <ChildBand Name="Child1" Top="940.45" Width="737.1" Height="13.45"/>
     </DataBand>
-    <DataBand Name="dataBandObservacao" Top="956.57" Width="737.1" Height="82.05" CanGrow="true" CanShrink="true" CanBreak="true">
+    <DataBand Name="dataBandObservacao" Top="991.57" Width="737.1" Height="82.05" CanGrow="true" CanShrink="true" CanBreak="true">
       <ShapeObject Name="Shape9" Width="737.1" Height="82.05" CanGrow="true" CanShrink="true" GrowToBottom="true"/>
       <TextObject Name="Text168" Left="4" Top="15.45" Width="727.65" Height="65.15" CanGrow="true" CanShrink="true" GrowToBottom="true" Text="[cteProc.CTe.infCte.compl.xObs]" Font="Times New Roman, 8.25pt"/>
       <TextObject Name="Text186" Left="-9.45" Top="26.9" Width="765.45" Height="18.9" CanGrow="true" CanShrink="true" GrowToBottom="true" Text="DOCUMENTO EMITIDO EM AMBIENTE DE HOMOLOGAÇÃO, SEM VALOR FISCAL" HorzAlign="Center" Font="Times New Roman, 12pt, style=Bold"/>
@@ -1557,7 +1561,7 @@ namespace FastReport
       <LineObject Name="Line45" Left="1" Top="13" Width="734.55" CanGrow="true" CanShrink="true" GrowToBottom="true"/>
       <TextObject Name="Text185" Top="45.25" Width="737.1" Height="24.35" CanGrow="true" CanShrink="true" GrowToBottom="true" Text="DOCUMENTO CANCELADO" HorzAlign="Center" Font="Times New Roman, 18pt, style=Bold"/>
     </DataBand>
-    <DataBand Name="dataBandRodoviario" Top="1041.28" Width="737.1" Height="51.7" BeforePrintEvent="dataBandRodoviario_BeforePrint">
+    <DataBand Name="dataBandRodoviario" Top="1076.28" Width="737.1" Height="51.7" BeforePrintEvent="dataBandRodoviario_BeforePrint">
       <ShapeObject Name="Shape10" Top="0.45" Width="737.1" Height="47.25"/>
       <TextObject Name="Text181" Left="2.45" Top="27.8" Width="83.6" Height="14.45" Font="Times New Roman, 8.25pt"/>
       <TextObject Name="Text182" Left="86.05" Top="27.8" Width="83.6" Height="14.45" Font="Times New Roman, 8.25pt"/>
@@ -1575,7 +1579,7 @@ namespace FastReport
       <TextObject Name="Text180" Left="209.9" Top="15.35" Width="109.95" Height="8.45" Text="DATA PREVISTA DE ENTREGA" Font="Times New Roman, 5.25pt"/>
       <TextObject Name="Text167" Left="1" Top="1.9" Width="735.1" Height="11.45" Text="DADOS ESPECÍFICOS DO MODAL RODOVIÁRIO - CARGA FRACIONADA" HorzAlign="Center" Font="Times New Roman, 6.75pt"/>
     </DataBand>
-    <DataBand Name="dataBandAereo" Top="1095.65" Width="737.1" Height="83.6" BeforePrintEvent="dataBandAereo_BeforePrint">
+    <DataBand Name="dataBandAereo" Top="1130.65" Width="737.1" Height="83.6" BeforePrintEvent="dataBandAereo_BeforePrint">
       <ShapeObject Name="Shape14" Top="2" Width="737.1" Height="77.6"/>
       <TextObject Name="Text230" Left="1.45" Top="29.35" Width="96.6" Height="14.45" WordWrap="false" Font="Times New Roman, 8.25pt"/>
       <TextObject Name="Text231" Left="358.1" Top="29.35" Width="92.05" Height="14.45" WordWrap="false" Font="Times New Roman, 8.25pt"/>
@@ -1604,7 +1608,7 @@ namespace FastReport
       <TextObject Name="Text249" Left="139.75" Top="61.7" Width="82.15" Height="14.45" WordWrap="false" Font="Times New Roman, 8.25pt"/>
       <LineObject Name="Line80" Left="223.8" Top="47.25" Height="30.8"/>
       <TextObject Name="Text250" Left="226.8" Top="48.25" Width="506.85" Height="28.35" Text="ESTE CONHECIMENTO DE TRANSPORTE ATENDE À LEGISLAÇÃO DE TRANSPORTE AÉREO EM VIGOR" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 5.25pt"/>
-      <DataBand Name="dataProdutosPerigosos" Top="1213.93" Width="737.1" Height="13.45" BeforePrintEvent="dataProdutosPerigosos_BeforePrint">
+      <DataBand Name="dataProdutosPerigosos" Top="1248.93" Width="737.1" Height="13.45" BeforePrintEvent="dataProdutosPerigosos_BeforePrint">
         <TextObject Name="Text256" Width="111.4" Height="13.45" Border.Lines="Left, Right, Bottom" Border.BottomLine.Style="Dot" Padding="2, 2, 2, 0" HorzAlign="Center" WordWrap="false" Font="Times New Roman, 6.75pt"/>
         <TextObject Name="Text257" Left="111.4" Width="83.05" Height="13.45" Border.Lines="Right, Bottom" Border.BottomLine.Style="Dot" Padding="2, 2, 2, 0" HorzAlign="Center" WordWrap="false" Font="Times New Roman, 6.75pt"/>
         <TextObject Name="Text258" Left="195.45" Width="83.05" Height="13.45" Border.Lines="Right, Bottom" Border.BottomLine.Style="Dot" Padding="2, 2, 2, 0" HorzAlign="Center" WordWrap="false" Font="Times New Roman, 6.75pt"/>
@@ -1618,7 +1622,7 @@ namespace FastReport
         </DataHeaderBand>
       </DataBand>
     </DataBand>
-    <DataBand Name="DadosVeiculosNovos" Top="1247.84" Width="737.1" Height="32.13" CanGrow="true" CanShrink="true" DataSource="veicNovos">
+    <DataBand Name="DadosVeiculosNovos" Top="1282.84" Width="737.1" Height="32.13" CanGrow="true" CanShrink="true" DataSource="veicNovos">
       <LineObject Name="Line69" Left="187.11" Top="1.22" Height="29.91"/>
       <LineObject Name="Line70" Left="430.92" Top="1.13" Height="29.91"/>
       <LineObject Name="Line71" Left="512.19" Top="1.22" Height="29.91"/>
