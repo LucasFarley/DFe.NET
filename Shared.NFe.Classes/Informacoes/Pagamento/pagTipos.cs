@@ -1,4 +1,4 @@
-﻿/********************************************************************************/
+/********************************************************************************/
 /* Projeto: Biblioteca ZeusNFe                                                  */
 /* Biblioteca C# para emissão de Nota Fiscal Eletrônica - NFe e Nota Fiscal de  */
 /* Consumidor Eletrônica - NFC-e (http://www.nfe.fazenda.gov.br)                */
@@ -50,12 +50,15 @@ namespace NFe.Classes.Informacoes.Pagamento {
     ///     <para>15 - Boleto Bancário (versão 4.00)</para>
     ///     <para>16 - Depósito Bancário (versão 4.00)</para>
     ///     <para>17 - Pagamento Instantâneo (PIX) dinâmico (versão 4.00)</para>
-    ///     <para>18 - Transferência bancária, Carteira Digital (versão 4.00)</para>
+    ///     <para>18 - TED (Transferência Eletrônica Disponível)</para>
     ///     <para>19 - Programa de fidelidade, Cashback, Crédito Virtual (versão 4.00)</para>
     ///     <para>20 - Pagamento Instantâneo (PIX) estático</para>
     ///     <para>21 - Crédito em loja</para>
     ///     <para>22 - Pagamento eletrônico não informado - falha de hardware do sistema emissor</para>
+    ///     <para>23 - Pagamento Instantâneo (PIX) automático</para>
+    ///     <para>24 - TEF - "Book Transfer"</para>
     ///     <para>90 - Sem pagamento (versão 4.00)</para>
+    ///     <para>91 - Pagamento Posterior</para>
     ///     <para>99 - Outros</para>
     /// </summary>
     public enum FormaPagamento {
@@ -141,7 +144,7 @@ namespace NFe.Classes.Informacoes.Pagamento {
         /// <summary>
         /// 16 - Depósito Bancário
         /// </summary>
-        [Description("=Depósito Bancário")]
+        [Description("Depósito Bancário")]
         [XmlEnum("16")] fpDepositoBancario = 16,
 
         /// <summary>
@@ -152,9 +155,9 @@ namespace NFe.Classes.Informacoes.Pagamento {
 
 
         /// <summary>
-        /// 18 - Transferência bancária, Carteira Digital
+        /// 18 - TED (Transferência Eletrônica Disponível)
         /// </summary>
-        [Description("Transferência bancária, Carteira Digital")]
+        [Description("TED (Transferência Eletrônica Disponível)")]
         [XmlEnum("18")] fpTransferenciabancaria = 18,
 
         /// <summary>
@@ -182,11 +185,30 @@ namespace NFe.Classes.Informacoes.Pagamento {
         [XmlEnum("22")] fpPagamentoEletronicoNaoInformado = 22,
 
         /// <summary>
+        /// 23 - Pagamento Instantâneo (PIX) automático
+        /// </summary>
+        [Description("Pagamento Instantâneo (PIX) automático")]
+        [XmlEnum("23")] fpPagamentoInstantaneoPIXAutomatico = 23,
+
+        /// <summary>
+        /// 24 - TEF - "Book Transfer"
+        /// </summary>
+        [Description("TEF - Book Transfer")]
+        [XmlEnum("24")] fpTEFBookTransfer = 24,
+
+        /// <summary>
         /// 90 - Sem pagamento
         /// </summary>
         [Description("Sem pagamento")]
         [XmlEnum("90")]
         fpSemPagamento = 90,
+
+        /// <summary>
+        /// 91 - Pagamento Posterior
+        /// </summary>
+        [Description("Pagamento Posterior")]
+        [XmlEnum("91")]
+        fpPagamentoPosterior = 91,
 
         /// <summary>
         /// 99 - Outros
