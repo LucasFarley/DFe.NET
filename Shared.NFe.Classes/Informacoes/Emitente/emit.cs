@@ -52,8 +52,7 @@ namespace NFe.Classes.Informacoes.Emitente
             {
                 if (string.IsNullOrEmpty(value)) return;
                 if (string.IsNullOrEmpty(_cpf))
-                    _cnpj = Regex.Match(value, @"\d+").Value;
-
+                    _cnpj = Regex.Replace(value, @"[^A-Za-z0-9]", "").ToUpper();
                 else
                 {
                     throw new ArgumentException(ErroCpfCnpjPreenchidos);
@@ -71,7 +70,7 @@ namespace NFe.Classes.Informacoes.Emitente
             {
                 if (string.IsNullOrEmpty(value)) return;
                 if (string.IsNullOrEmpty(_cnpj))
-                    _cpf = Regex.Match(value, @"\d+").Value;
+                    _cpf = Regex.Replace(value, @"[^A-Za-z0-9]", "").ToUpper();
                 else
                 {
                     throw new ArgumentException(ErroCpfCnpjPreenchidos);

@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Data;
+using System.Text.RegularExpressions;
 
 using FastReport;
 using FastReport.Data;
@@ -57,9 +58,8 @@ namespace FastReport
             valor = valor.Substring(0,3)+&quot;-&quot;+valor.Substring(3,4);
           break;
         case 'z':
-          var mask = new MaskedTextProvider(&quot;0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000&quot;, new System.Globalization.CultureInfo(&quot;pt-BR&quot;, false));
-          mask.Add(valor);
-          valor = mask.ToString();
+          valor = Regex.Replace(valor, @"[^A-Za-z0-9]", "").ToUpper();
+          valor = Regex.Replace(valor, ".{4}", "$0 ").Trim();
           break;
       }                               
       return valor;
@@ -640,13 +640,13 @@ namespace FastReport
       <TextObject Name="Text8" Left="378.79" Top="21.9" Width="36.8" Height="38.91" Border.Lines="Right, Bottom" Text="58" Padding="2, 0, 2, 4" HorzAlign="Center" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 9pt, style=Bold"/>
       <BarcodeObject Name="Barcode1" Left="621.79" Top="20.35" Width="103.72" Height="103.62" AutoSize="false" Text="[MDFeProcMDFe.MDFe.infMDFeSupl.qrCodMDFe]" ShowText="false" AllowExpressions="true" Barcode="QR Code" Barcode.ErrorCorrection="L" Barcode.Encoding="UTF8" Barcode.QuietZone="true"/>
       <LineObject Name="Line1" Left="377.62" Top="20.35" Height="149.42"/>
-      <BarcodeObject Name="BarcodeChave" Left="388.01" Top="123.85" Width="346.25" Height="39.8" Text="12345678901234567890123456789012345678901234" ShowText="false" AllowExpressions="true" Barcode="Code128" Barcode.AutoEncode="true"/>
+      <BarcodeObject Name="BarcodeChave" Left="388.01" Top="123.85" Width="346.25" Height="39.8" AutoSize="false" Zoom="0.88" Text="12345678901234567890123456789012345678901234" ShowText="false" AllowExpressions="true" Barcode="Code128" Barcode.AutoEncode="true"/>
       <TextObject Name="Text1" Left="382.23" Top="110.62" Width="108.4" Height="10.01" Text="Controle do Fisco" Font="Times New Roman, 6pt, style=Bold"/>
       <TextObject Name="Text2" Left="2.01" Top="170.99" Width="137.75" Height="8.89" Text="Chave de Acesso" Font="Times New Roman, 6pt, style=Bold"/>
       <TextObject Name="Text3" Left="0.67" Top="2.78" Width="114.4" Height="18.23" Border.Lines="Bottom" Text="DAMDFE" Font="Times New Roman, 10pt, style=Bold"/>
       <TextObject Name="Text4" Left="114.28" Top="2.11" Width="630.37" Height="18.68" Border.Lines="Bottom" Text="Documento Auxiliar de Manifesto de Documentos Fiscais" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 7pt, style=Bold"/>
       <PictureObject Name="poEmitLogo" Left="2.45" Top="50.25" Width="116.73" Height="113.17" Image=""/>
-      <TextObject Name="Text5" Left="3" Top="22.35" Width="370.55" Height="25.9" Text="[MDFeProcMDFe.MDFe.InfMDFe.Emit.XNome]" VertAlign="Center" Font="Times New Roman, 8pt, style=Bold"/>
+      <TextObject Name="Text5" Left="3" Top="22.35" Width="370.55" Height="25.9" Text="[MDFeProcMDFe.MDFe.InfMDFe.Emit.XNome]" VertAlign="Center" Font="Times New Roman, 6pt, style=Bold"/>
       <TextObject Name="Text6" Left="121.4" Top="49.25" Width="252.15" Height="117.18" Text="[MDFeProcMDFe.MDFe.InfMDFe.Emit.EnderEmit.XLgr], [MDFeProcMDFe.MDFe.InfMDFe.Emit.EnderEmit.Nro] [MDFeProcMDFe.MDFe.InfMDFe.Emit.EnderEmit.XCpl]&#13;&#10;[MDFeProcMDFe.MDFe.InfMDFe.Emit.EnderEmit.XBairro]&#13;&#10;CEP: [FormatarCampo([MDFeProcMDFe.MDFe.InfMDFe.Emit.EnderEmit.CEP], 'c')], [MDFeProcMDFe.MDFe.InfMDFe.Emit.EnderEmit.XMun] - [MDFeProcMDFe.MDFe.InfMDFe.Emit.EnderEmit.ProxyUF]&#13;&#10;CNPJ: [FormatarCampo([MDFeProcMDFe.MDFe.InfMDFe.Emit.CNPJ],'d')]&#13;&#10;INSCRIÇÃO ESTADUAL: [MDFeProcMDFe.MDFe.InfMDFe.Emit.IE]&#13;&#10;TELEFONE: [FormatarCampo([MDFeProcMDFe.MDFe.InfMDFe.Emit.EnderEmit.Fone],'f')]&#13;&#10;[MDFeProcMDFe.MDFe.InfMDFe.Emit.EnderEmit.Email]" Font="Times New Roman, 7pt"/>
       <TextObject Name="Text7" Left="379.58" Top="25.79" Width="34.8" Height="10.45" Text="MODELO" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5.25pt"/>
       <TextObject Name="Text9" Left="416.14" Top="25.79" Width="34.8" Height="10.45" Text="SÉRIE" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5.25pt"/>

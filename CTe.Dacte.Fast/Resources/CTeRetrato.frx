@@ -65,18 +65,20 @@ namespace FastReport
           break;   
         case 'p':
           if (valor.Length == 7)
-            valor = valor.Substring(0,3)+&quot;-&quot;+valor.Substring(3,4);   
-          break;
-      }                               
-      return valor;
-    }
-    
-    private string FormatarChave(string chave)
-    {
-      string retorno = string.Empty;
-      chave = Regex.Replace(chave, @&quot;[^\d]&quot;, string.Empty); //Alterado para regex para poder usar em mais casos
-      //chave = chave.Substring(3);
-      for (int i = 0; i &lt; chave.Length; i++)
+            valor = valor.Substring(0,3)+&quot;-&quot;+valor.Substring(3,4);
+	  break;
+	  }
+	  return valor;
+	  }
+
+	  private string FormatarChave(string chave)
+	  {
+	  string retorno = string.Empty;
+	  chave = Regex.Replace(chave, @"[^A-Za-z0-9]", string.Empty); //Alterado para regex para poder usar em mais casos
+	  if (chave.StartsWith("CTe")){
+	    chave = chave.Substring(3);
+		}
+	  for (int i = 0; i &lt; chave.Length; i++)
       {
         retorno += chave[i];
         if ((i+1) % 4 == 0)
