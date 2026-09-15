@@ -372,10 +372,15 @@ Preencher com "2B", quando se tratar de Cupom Fiscal emitido por máquina regist
 									</xs:element>
 									<xs:element name="finNFe" type="TFinNFe">
 										<xs:annotation>
-											<xs:documentation>Finalidade da emissão da NF-e:
-1 - NFe normal
-2 - NFe complementar
-3 - NFe de ajuste</xs:documentation>
+											<xs:documentation>
+												Finalidade da emissão da NF-e:
+												1 - NFe normal
+												2 - NFe complementar
+												3 - NFe de ajuste
+												4 - Devolução
+												5 - Nota de crédito
+												6 - Nota de débito
+											</xs:documentation>
 										</xs:annotation>
 									</xs:element>
 									<xs:element name="procEmi" type="TProcEmi">
@@ -6414,6 +6419,9 @@ básicos; 5-Nacional, conteudo inferior 40%; 6-Estrangeira - Importação direta
 			<xs:enumeration value="1"/>
 			<xs:enumeration value="2"/>
 			<xs:enumeration value="3"/>
+			<xs:enumeration value="4"/>
+			<xs:enumeration value="5"/>
+			<xs:enumeration value="6"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="TProcEmi">

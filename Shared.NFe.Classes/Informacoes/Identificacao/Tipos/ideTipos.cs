@@ -271,6 +271,8 @@ namespace NFe.Classes.Informacoes.Identificacao.Tipos
     ///     <para>2 - NFe complementar</para>
     ///     <para>3 - NFe de ajuste</para>
     ///     <para>4 - Devolução de mercadoria</para>
+    ///     <para>5 - Nota de crédito</para>
+    ///     <para>6 - Nota de débito</para>
     /// </summary>
     public enum FinalidadeNFe
     {
@@ -300,7 +302,21 @@ namespace NFe.Classes.Informacoes.Identificacao.Tipos
         /// </summary>
         [Description("Devolução de mercadoria")]
         [XmlEnum("4")]
-        fnDevolucao = 4
+        fnDevolucao = 4,
+
+        /// <summary>
+        /// 5 - Nota de crédito
+        /// </summary>
+        [Description("Nota de crédito")]
+        [XmlEnum("5")]
+        fnNotaCredito = 5,
+
+        /// <summary>
+        /// 6 - Nota de débito
+        /// </summary>
+        [Description("Nota de débito")]
+        [XmlEnum("6")]
+        fnNotaDebito = 6
     }
 
     /// <summary>
