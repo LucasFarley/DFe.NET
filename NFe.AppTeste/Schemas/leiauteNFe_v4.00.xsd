@@ -180,11 +180,15 @@ SCAN 900-999</xs:documentation>
 									</xs:element>
 									<xs:element name="finNFe" type="TFinNFe">
 										<xs:annotation>
-											<xs:documentation>Finalidade da emissão da NF-e:
-1 - NFe normal
-2 - NFe complementar
-3 - NFe de ajuste
-4 - Devolução/Retorno</xs:documentation>
+											<xs:documentation>
+												Finalidade da emissão da NF-e:
+												1 - NFe normal
+												2 - NFe complementar
+												3 - NFe de ajuste
+												4 - Devolução/Retorno
+												5 - Nota de crédito
+												6 - Nota de débito
+											</xs:documentation>
 										</xs:annotation>
 									</xs:element>
 									<xs:element name="indFinal">
