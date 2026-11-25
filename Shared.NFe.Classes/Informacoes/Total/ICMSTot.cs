@@ -56,6 +56,10 @@ namespace NFe.Classes.Informacoes.Total
         private decimal? _vFcp;
         private decimal? _vFcpst;
         private decimal? _vFcpstRet;
+        private decimal? _qBcMono;
+        private decimal? _vIcmsMono;
+        private decimal? _qBcMonoReten;
+        private decimal? _vIcmsMonoReten;
         private decimal? _vIpiDevol;
 
         /// <summary>
@@ -193,6 +197,62 @@ namespace NFe.Classes.Informacoes.Total
         public bool vFCPSTRetSpecified
         {
             get { return vFCPSTRet.HasValue; }
+        }
+
+        /// <summary>
+        ///     W06b.1 - Base de cálculo (quantidade) do ICMS monofásico
+        /// </summary>
+        public decimal? qBCMono
+        {
+            get { return _qBcMono.Arredondar(4); }
+            set { _qBcMono = value.Arredondar(4); }
+        }
+
+        public bool ShouldSerializeqBCMono()
+        {
+            return qBCMono.HasValue;
+        }
+
+        /// <summary>
+        ///     W06c - Valor do ICMS monofásico
+        /// </summary>
+        public decimal? vICMSMono
+        {
+            get { return _vIcmsMono.Arredondar(2); }
+            set { _vIcmsMono = value.Arredondar(2); }
+        }
+
+        public bool ShouldSerializevICMSMono()
+        {
+            return vICMSMono.HasValue;
+        }
+
+        /// <summary>
+        ///     W06c.1 - Base de cálculo (quantidade) do ICMS monofásico sujeito a retenção
+        /// </summary>
+        public decimal? qBCMonoReten
+        {
+            get { return _qBcMonoReten.Arredondar(4); }
+            set { _qBcMonoReten = value.Arredondar(4); }
+        }
+
+        public bool ShouldSerializeqBCMonoReten()
+        {
+            return qBCMonoReten.HasValue;
+        }
+
+        /// <summary>
+        ///     W06d - Valor do ICMS monofásico sujeito a retenção
+        /// </summary>
+        public decimal? vICMSMonoReten
+        {
+            get { return _vIcmsMonoReten.Arredondar(2); }
+            set { _vIcmsMonoReten = value.Arredondar(2); }
+        }
+
+        public bool ShouldSerializevICMSMonoReten()
+        {
+            return vICMSMonoReten.HasValue;
         }
 
         /// <summary>

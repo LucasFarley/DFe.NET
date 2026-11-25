@@ -85,6 +85,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\Federal\Tipos\PISBasico.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\Federal\Tipos\PISTipos.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\imposto.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\Compartilhado\TributosRtcItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\Municipal\ISSQN.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Detalhe\Tributacao\Municipal\ISSQNTipos.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Emitente\emit.cs" />
@@ -114,8 +115,16 @@
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\ICMSTot.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\ISSQNtot.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\ISSQNtotTipos.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\ISTot.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\retTrib.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\total.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\IbsCbs\IBSCBSTot.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\IbsCbs\gEstornoCredTotal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\IbsCbs\Cbs\gCBSTotal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\IbsCbs\Ibs\gIBS.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\IbsCbs\Ibs\gIBSMunTotal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\IbsCbs\Ibs\gIBSUFTotal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Total\IbsCbs\Monofasica\gMono.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Transporte\lacres.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Transporte\reboque.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Informacoes\Transporte\retTransp.cs" />
