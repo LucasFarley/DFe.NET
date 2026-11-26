@@ -30,6 +30,7 @@
 /* http://www.zeusautomacao.com.br/                                             */
 /* Rua Comendador Francisco josé da Cunha, 111 - Itabaiana - SE - 49500-000     */
 /********************************************************************************/
+using NFe.Classes.Informacoes.Detalhe.Tributacao.Compartilhado;
 using NFe.Classes.Informacoes.Detalhe.Tributacao.Estadual;
 using NFe.Classes.Informacoes.Detalhe.Tributacao.Federal;
 using NFe.Classes.Informacoes.Detalhe.Tributacao.Municipal;
@@ -93,6 +94,16 @@ namespace NFe.Classes.Informacoes.Detalhe.Tributacao
         /// NA01 - Informação do ICMS Interestadua
         /// </summary>
         public ICMSUFDest ICMSUFDest { get; set; }
+
+        /// <summary>
+        ///     UB01 - Informações do Imposto Seletivo
+        /// </summary>
+        public IS IS { get; set; }
+
+        /// <summary>
+        ///     UB12 - IBS e CBS do item
+        /// </summary>
+        public IBSCBS IBSCBS { get; set; }
 
         public bool ShouldSerializevTotTrib()
         {

@@ -39,12 +39,20 @@
 		BarcodeChave.Text = chave;
 		poEmitLogo.Image = ObterLogo();
 
+		var crtEmit = (CRT)Report.GetColumnValue("NFe.NFe.infNFe.emit.CRT");
+		if (crtEmit == CRT.SimplesNacional) txtCrt.Text = "1 - Simples Nacional";
+		else if (crtEmit == CRT.SimplesNacionalExcessoSublimite) txtCrt.Text = "2 - Simples Nacional - excesso de sublimite de receita bruta";
+		else if (crtEmit == CRT.RegimeNormal) txtCrt.Text = "3 - Regime Normal";
+		else if (crtEmit == CRT.MicroempreendedorIndividual) txtCrt.Text = "4 - Microempreendedor Individual (MEI)";
+		else txtCrt.Text = "";
+
+
 		var contigenciaId = (string)Report.GetParameterValue(&quot;ContingenciaID&quot;);
 		BarCodeContigencia.Visible = !string.IsNullOrEmpty(contigenciaId);
 		if(BarCodeContigencia.Visible) BarCodeContigencia.Text = contigenciaId;
 		DadosISSQN.Visible = !(bool)Report.GetParameterValue(&quot;ImprimirISSQN&quot;);
-		prodRow.AutoSize = (bool)Report.GetParameterValue(&quot;DuasLinhas&quot;);
-		if(prodRow.AutoSize == false) prodNomeCell.WordWrap = false;
+		prodRow.AutoSize = true;
+		prodNomeCell.WordWrap = true;
 
 		//Trato o campo de Frete
 		switch((int)((ModalidadeFrete)Report.GetColumnValue(&quot;NFe.NFe.infNFe.transp.modFrete&quot;)))
@@ -186,92 +194,137 @@
 
 		private void DadosProdutos_BeforePrint(object sender, EventArgs e)
 		{
-		var icmsBasico = (ICMSBasico)Report.GetColumnValue(&quot;NFe.NFe.infNFe.det.imposto.ICMS.TipoICMS&quot;);
-		var ipiBasico = (IPIBasico)Report.GetColumnValue(&quot;NFe.NFe.infNFe.det.imposto.IPI.TipoIPI&quot;);
+		var icmsBasico = (ICMSBasico)Report.GetColumnValue("NFe.NFe.infNFe.det.imposto.ICMS.TipoICMS");
+		var ipiBasico = (IPIBasico)Report.GetColumnValue("NFe.NFe.infNFe.det.imposto.IPI.TipoIPI");
+		var crtItem = (CRT)Report.GetColumnValue("NFe.NFe.infNFe.emit.CRT");
 
+		string cst = "";
+		decimal bcIcms = 0m;
+		decimal vIcms = 0m;
+		decimal pIcms = 0m;
 		if (icmsBasico != null)
 		{
 		var orig = icmsBasico.GetIcmsOrig();
-		if ((CRT)(Report.GetColumnValue(&quot;NFe.NFe.infNFe.emit.CRT&quot;)) == CRT.SimplesNacional)
+		if (crtItem == CRT.SimplesNacional || crtItem == CRT.MicroempreendedorIndividual)
+		cst = orig.OrigemMercadoriaParaString() + icmsBasico.GetIcmsCsosn().CsosnicmsParaString();
+		else
+		cst = orig.OrigemMercadoriaParaString() + icmsBasico.GetIcmsCst().CsticmsParaString();
+		bcIcms = icmsBasico.GetIcmsBcValue();
+		vIcms = icmsBasico.GetIcmsValue();
+		pIcms = icmsBasico.GetIcmsPercent();
+		}
+
+		decimal bcIpi = LerOpcional("NFe.NFe.infNFe.det.imposto.IPI.TipoIPI.vBC") ?? 0m;
+		decimal vIpi = 0m;
+		decimal pIpi = 0m;
+		if (ipiBasico != null)
 		{
-		prodOriginCell.Text = orig.OrigemMercadoriaParaString()+icmsBasico.GetIcmsCsosn().CsosnicmsParaString();
+		vIpi = ipiBasico.GetIpiValue();
+		pIpi = ipiBasico.GetIpiPercent();
+		}
+
+		string cfop = Convert.ToString(Report.GetColumnValue("NFe.NFe.infNFe.det.prod.CFOP"));
+		prodCstCfopCell.Text = "CST " + cst + Environment.NewLine + "CFOP " + cfop;
+
+		var cProd = (string)Report.GetColumnValue("NFe.NFe.infNFe.det.prod.cProd");
+		var xProd = (string)Report.GetColumnValue("NFe.NFe.infNFe.det.prod.xProd");
+		var ncm = (string)Report.GetColumnValue("NFe.NFe.infNFe.det.prod.NCM");
+		var infAd = Report.GetColumnValue("NFe.NFe.infNFe.det.infAdProd") as string;
+		var cClass = Report.GetColumnValue("NFe.NFe.infNFe.det.imposto.IBSCBS.cClassTrib") as string;
+		string desc = (cProd ?? "") + " - " + (xProd ?? "");
+		if (!string.IsNullOrEmpty(infAd)) desc = desc + Environment.NewLine + infAd;
+		desc = desc + Environment.NewLine + "NCM " + (ncm ?? "");
+		if (!string.IsNullOrEmpty(cClass)) desc = desc + "   cClassTrib " + cClass;
+		prodNomeCell.Text = desc;
+
+		var imprimirUnidQtdeValor = (ImprimirUnidQtdeValor)Report.GetParameterValue("ImprimirUnidQtdeValor");
+		var imprimirDescPorc = (bool)Report.GetParameterValue("ImprimirDescPorc");
+		var imprimirTotalLiquido = (bool)Report.GetParameterValue("ImprimirTotalLiquido");
+		var uCom = (string)Report.GetColumnValue("NFe.NFe.infNFe.det.prod.uCom");
+		var uTrib = (string)Report.GetColumnValue("NFe.NFe.infNFe.det.prod.uTrib");
+		var qCom = (decimal)Report.GetColumnValue("NFe.NFe.infNFe.det.prod.qCom");
+		var qTrib = (decimal)Report.GetColumnValue("NFe.NFe.infNFe.det.prod.qTrib");
+		var vUnCom = (decimal)Report.GetColumnValue("NFe.NFe.infNFe.det.prod.vUnCom");
+		var vUnTrib = (decimal)Report.GetColumnValue("NFe.NFe.infNFe.det.prod.vUnTrib");
+		var vProd = (decimal)Report.GetColumnValue("NFe.NFe.infNFe.det.prod.vProd");
+		var vDesc = LerOpcional("NFe.NFe.infNFe.det.prod.vDesc") ?? 0m;
+		var decimaisQuantidadeItem = (int)Report.GetParameterValue("DecimaisQuantidadeItem");
+		var decimaisValorUnitario = (int)Report.GetParameterValue("DecimaisValorUnitario");
+
+		string qtdTexto = "";
+		string unTexto = "";
+		string unitTexto = "";
+		if (imprimirUnidQtdeValor == ImprimirUnidQtdeValor.Tributavel)
+		{
+		qtdTexto = FormatNumber(qTrib, decimaisQuantidadeItem);
+		unTexto = uTrib;
+		unitTexto = FormatNumber(vUnTrib, decimaisValorUnitario);
+		}
+		else if (imprimirUnidQtdeValor == ImprimirUnidQtdeValor.Ambos)
+		{
+		qtdTexto = FormatNumber(qCom, decimaisQuantidadeItem) + Environment.NewLine + FormatNumber(qTrib, decimaisQuantidadeItem);
+		unTexto = (uCom ?? "") + Environment.NewLine + (uTrib ?? "");
+		unitTexto = FormatNumber(vUnCom, decimaisValorUnitario) + Environment.NewLine + FormatNumber(vUnTrib, decimaisValorUnitario);
 		}
 		else
 		{
-		prodOriginCell.Text = orig.OrigemMercadoriaParaString() + icmsBasico.GetIcmsCst().CsticmsParaString();
+		qtdTexto = FormatNumber(qCom, decimaisQuantidadeItem);
+		unTexto = uCom;
+		unitTexto = FormatNumber(vUnCom, decimaisValorUnitario);
 		}
+		prodQtdUnCell.Text = qtdTexto + Environment.NewLine + unTexto;
+		prodValorUnitarioCell.Text = unitTexto;
 
-		prodBcCell.Text = FormatNumber(icmsBasico.GetIcmsBcValue(), 2);
-		prodICMSCell.Text = FormatNumber(icmsBasico.GetIcmsValue(), 2);
-		prodAlqICMSCell.Text = FormatNumber(icmsBasico.GetIcmsPercent(),2);
-		}
-
-
-		if(ipiBasico != null)
+		decimal totalItem = vProd;
+		if (imprimirTotalLiquido) totalItem = vProd - vDesc;
+		string totalTexto = FormatNumber(totalItem, 2);
+		if (vDesc.CompareTo(0m) &gt; 0)
 		{
-		prodIPICell.Text = FormatNumber(ipiBasico.GetIpiValue(),2);
-		prodAlqIPICell.Text = FormatNumber(ipiBasico.GetIpiPercent(),2);
-		}
+		if (imprimirDescPorc &amp;&amp; vUnCom * qCom != 0m)
+		totalTexto = totalTexto + Environment.NewLine + "Desc " + FormatNumber((vDesc * 100m) / (vUnCom * qCom), 2) + "%";
 		else
+		totalTexto = totalTexto + Environment.NewLine + "Desc " + FormatNumber(vDesc, 2);
+		}
+		prodValorCell.Text = totalTexto;
+
+		bool temIbs = TemGrupo("NFe.NFe.infNFe.det.imposto.IBSCBS.gIBSCBS");
+		bool temIs = TemGrupo("NFe.NFe.infNFe.det.imposto.IS");
+		string grupo = "NFe.NFe.infNFe.det.imposto.IBSCBS.gIBSCBS";
+
+		string bases = "ICMS  " + FormatNumber(bcIcms, 2);
+		if (temIbs) bases = bases + Environment.NewLine + "IBS/CBS  " + FormatNumber(LerOpcional(grupo + ".vBC") ?? 0m, 2);
+		if (temIs) bases = bases + Environment.NewLine + "IS  " + FormatNumber(LerOpcional("NFe.NFe.infNFe.det.imposto.IS.vBCIS") ?? 0m, 2);
+		bases = bases + Environment.NewLine + "IPI  " + FormatNumber(bcIpi, 2);
+		prodBasesCell.Text = bases;
+
+		string aliq = "ICMS  " + FormatNumber(pIcms, 2) + "%";
+		if (temIbs) aliq = aliq + Environment.NewLine + "CBS  " + AliquotaGrupo(grupo + ".gCBS", "pCBS");
+		aliq = aliq + Environment.NewLine + "IPI  " + FormatNumber(pIpi, 2) + "%";
+		if (temIbs)
 		{
-		prodIPICell.Text = &quot;0,00&quot;;
-		prodAlqIPICell.Text = &quot;0,00&quot;;
+		aliq = aliq + Environment.NewLine + "IBS UF  " + AliquotaGrupo(grupo + ".gIBSUF", "pIBSUF");
+		aliq = aliq + Environment.NewLine + "IBS MUN  " + AliquotaGrupo(grupo + ".gIBSMun", "pIBSMun");
+		}
+		if (temIs) aliq = aliq + Environment.NewLine + "IS  " + FormatNumber(LerOpcional("NFe.NFe.infNFe.det.imposto.IS.pIS") ?? 0m, 2) + "%";
+		prodAliqCell.Text = aliq;
+
+		string tribs = "ICMS  " + FormatNumber(vIcms, 2);
+		if (temIbs) tribs = tribs + Environment.NewLine + "CBS  " + FormatNumber(LerOpcional(grupo + ".gCBS.vCBS") ?? 0m, 2);
+		tribs = tribs + Environment.NewLine + "IPI  " + FormatNumber(vIpi, 2);
+		if (temIbs)
+		{
+		tribs = tribs + Environment.NewLine + "IBS UF  " + FormatNumber(LerOpcional(grupo + ".gIBSUF.vIBSUF") ?? 0m, 2);
+		tribs = tribs + Environment.NewLine + "IBS MUN  " + FormatNumber(LerOpcional(grupo + ".gIBSMun.vIBSMun") ?? 0m, 2);
+		}
+		if (temIs) tribs = tribs + Environment.NewLine + "IS  " + FormatNumber(LerOpcional("NFe.NFe.infNFe.det.imposto.IS.vIS") ?? 0m, 2);
+		prodTribCell.Text = tribs;
 		}
 
-		var imprimirUnidQtdeValor = (ImprimirUnidQtdeValor)Report.GetParameterValue(&quot;ImprimirUnidQtdeValor&quot;);
-		var imprimirDescPorc = (bool)Report.GetParameterValue(&quot;ImprimirDescPorc&quot;);
-		var imprimirTotalLiquido = (bool)Report.GetParameterValue(&quot;ImprimirTotalLiquido&quot;);
-
-		var uCom = ((String)Report.GetColumnValue(&quot;NFe.NFe.infNFe.det.prod.uCom&quot;));
-		var uTrib = ((String)Report.GetColumnValue(&quot;NFe.NFe.infNFe.det.prod.uTrib&quot;));
-
-		var qCom = ((Decimal)Report.GetColumnValue(&quot;NFe.NFe.infNFe.det.prod.qCom&quot;));
-		var qTrib = ((Decimal)Report.GetColumnValue(&quot;NFe.NFe.infNFe.det.prod.qTrib&quot;));
-
-		var vUnCom = ((Decimal)Report.GetColumnValue(&quot;NFe.NFe.infNFe.det.prod.vUnCom&quot;));
-		var vUnTrib = ((Decimal)Report.GetColumnValue(&quot;NFe.NFe.infNFe.det.prod.vUnTrib&quot;));
-
-		var vProd = ((Decimal)Report.GetColumnValue(&quot;NFe.NFe.infNFe.det.prod.vProd&quot;));
-		var vDesc = (((Nullable&lt;Decimal&gt;)Report.GetColumnValue(&quot;NFe.NFe.infNFe.det.prod.vDesc&quot;)) ?? 0);
-
-		if(imprimirTotalLiquido) vProd = vProd - vDesc;
-		if(vDesc &gt; 0 &amp;&amp; imprimirDescPorc)
+		private string AliquotaGrupo(string grupoAliquota, string aliquota)
 		{
-		vDesc = ((vDesc*100)/(vUnCom*qCom));
-		}
-
-		prodValorCell.Text = FormatNumber(vProd,2);
-		prodDescontoCell.Text = FormatNumber(vDesc, 2);
-
-		var decimaisQuantidadeItem = (int)Report.GetParameterValue(&quot;DecimaisQuantidadeItem&quot;);
-		var decimaisValorUnitario = (int)Report.GetParameterValue(&quot;DecimaisValorUnitario&quot;);
-
-		switch(imprimirUnidQtdeValor)
-		{
-		case ImprimirUnidQtdeValor.Comercial:
-		prodUnidadeCell.Text = uCom;
-		prodQtdCell.Text = FormatNumber(qCom, decimaisQuantidadeItem);
-		prodValorUnitarioCell.Text = FormatNumber(vUnCom, decimaisValorUnitario);
-		break;
-
-		case ImprimirUnidQtdeValor.Tributavel:
-		prodUnidadeCell.Text = uTrib;
-		prodQtdCell.Text = FormatNumber(qTrib, decimaisQuantidadeItem);
-		prodValorUnitarioCell.Text = FormatNumber(vUnTrib, decimaisValorUnitario);
-		break;
-
-		case ImprimirUnidQtdeValor.Ambos:
-
-		var qTribFormatado = FormatNumber(qTrib, decimaisQuantidadeItem);
-		var qComFormatado = FormatNumber(qCom, decimaisQuantidadeItem);
-		var vUnComFormatado = FormatNumber(vUnCom, decimaisValorUnitario);
-		var vUnTribFormatado = FormatNumber(vUnTrib, decimaisValorUnitario);
-
-		prodUnidadeCell.Text = string.Format(&quot;{0}{2}{1}&quot;, uCom, uTrib, Environment.NewLine);
-		prodQtdCell.Text = string.Format(&quot;{0}{2}{1}&quot;, qComFormatado, qTribFormatado, Environment.NewLine);
-		prodValorUnitarioCell.Text = string.Format(&quot;{0}{2}{1}&quot;, vUnComFormatado, vUnTribFormatado, Environment.NewLine);
-		break;
-		}
+		if (TemGrupo(grupoAliquota + ".gRed"))
+		return FormatNumber(LerTotal(grupoAliquota + ".gRed.pAliqEfet"), 2) + "%";
+		return FormatNumber(LerTotal(grupoAliquota + "." + aliquota), 2) + "%";
 		}
 
 		private string FormatarCampo(string valor, char format)
@@ -320,95 +373,195 @@
 
 		private void Imposto_BeforePrint(object sender, EventArgs e)
 		{
-		bool exibirIbpt = ((Boolean?)Report.GetParameterValue(&quot;ExibirTotalTributos&quot;)) ?? false;
+		}
 
-		QuadroVTOTTRIB.Visible = exibirIbpt;
-		txtIbptValor.Visible = exibirIbpt;
-
-		if (exibirIbpt)
+		private void AplicarQrCode()
 		{
-		//Base ICMS
-		QuadroVBC.Width = 100f;
-		Text170.Width = QuadroVBC.Width;
+		string qr = null;
+		try { qr = Report.GetColumnValue("NFe.NFe.infNFeSupl.qrCode") as string; }
+		catch { qr = null; }
+		bool tem = !string.IsNullOrEmpty(qr);
+		QuadroQr.Visible = tem;
+		bcoQrDanfe.Visible = tem;
+		if (tem)
+		{
+		bcoQrDanfe.Text = qr;
+		DadosAdicionais.Height = 128f;
+		Text155.Width = 400f;
+		Text155.Height = 110f;
+		TextInfAdicionais.Width = 396f;
+		TextInfAdicionais.Height = 92f;
+		Text156.Left = 400f;
+		Text156.Width = 224.66f;
+		Text156.Height = 110f;
+		Text37.Left = 402f;
+		Text37.Width = 220f;
+		Text37.Height = 92f;
+		}
+		else
+		{
+		DadosAdicionais.Height = 60.15f;
+		Text155.Width = 470.06f;
+		Text155.Height = 45.36f;
+		TextInfAdicionais.Width = 468.5f;
+		Text156.Left = 470.5f;
+		Text156.Width = 274.06f;
+		Text156.Height = 45.36f;
+		Text37.Left = 472.5f;
+		Text37.Width = 270.05f;
+		}
+		}
 
-		//Valor ICMS
-		QuadroVICMS.Width = 100f;
-		QuadroVICMS.Left = 100f;
-		Text169.Width = QuadroVICMS.Width;
-		Text169.Left = QuadroVICMS.Left;
+		private void DadosAdicionais_BeforePrint(object sender, EventArgs e)
+		{
+		AplicarQrCode();
+		}
 
-		//Base Calc ICMS ST
-		QuadroVBCST.Text = &quot;BASE CÁLC. ICMS SUBST.&quot;;
-		QuadroVBCST.Width = 100f;
-		QuadroVBCST.Left = 200f;
-		Text168.Width = QuadroVBCST.Width;
-		Text168.Left = QuadroVBCST.Left;
 
-		//ICMS ST
-		QuadrovST.Width = 100f;
-		QuadrovST.Left = 300f;
-		Text162.Width = QuadrovST.Width;
-		Text162.Left = QuadrovST.Left;
+		decimal LerTotal(string coluna)
+		{
+		try
+		{
+		object valor = Report.GetColumnValue(coluna);
+		if (valor == null) return 0m;
+		return Convert.ToDecimal(valor);
+		}
+		catch
+		{
+		return 0m;
+		}
+		}
 
-		//PIS
-		QuadroPIS.Width = 100f;
-		QuadroPIS.Left = 400f;
-		Text160.Width = QuadroPIS.Width;
-		Text160.Left = QuadroPIS.Left;
+		string FormatarTotal(decimal valor)
+		{
+		return valor.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"));
+		}
 
-		//TOTAL TRIBUTOS
-		QuadroVTOTTRIB.Width = 100f;
-		QuadroVTOTTRIB.Left = 500f;
-		txtIbptValor.Width = QuadroVTOTTRIB.Width;
-		txtIbptValor.Left = QuadroVTOTTRIB.Left;
+		decimal? LerOpcional(string coluna)
+		{
+		try
+		{
+		object valor = Report.GetColumnValue(coluna);
+		if (valor == null) return null;
+		return Convert.ToDecimal(valor);
+		}
+		catch
+		{
+		return null;
+		}
+		}
 
-		//Total produtos
-		Memo67.Left = 600f;
-		Memo67.Width = 144.5f;
-		Text159.Width = Memo67.Width;
-		Text159.Left = Memo67.Left;
+		bool TemGrupo(string coluna)
+		{
+		try
+		{
+		return Report.GetColumnValue(coluna) != null;
+		}
+		catch
+		{
+		return false;
+		}
+		}
 
-		//Frete
-		Memo77.Left = 0f;
-		Memo77.Width = 100f;
-		Text167.Width = Memo77.Width;
-		Text167.Left = Memo77.Left;
 
-		//Seguro
-		Memo75.Left = 100f;
-		Memo75.Width = 100f;
-		Text166.Width = Memo75.Width;
-		Text166.Left = Memo75.Left;
+		private void TotalIbsCbs_BeforePrint(object sender, EventArgs e)
+		{
+		txtCbs.Text = FormatarTotal(LerTotal("NFe.NFe.infNFe.total.IBSCBSTot.gCBS.vCBS"));
+		txtIbsUf.Text = FormatarTotal(LerTotal("NFe.NFe.infNFe.total.IBSCBSTot.gIBS.gIBSUF.vIBSUF"));
+		txtIbsMun.Text = FormatarTotal(LerTotal("NFe.NFe.infNFe.total.IBSCBSTot.gIBS.gIBSMun.vIBSMun"));
+		txtIs.Text = FormatarTotal(LerTotal("NFe.NFe.infNFe.total.ISTot.vIS"));
 
-		//Desconto
-		Memo73.Left = 200f;
-		Memo73.Width = 100f;
-		Text165.Width = Memo73.Width;
-		Text165.Left = Memo73.Left;
+		bool temMono = TemGrupo("NFe.NFe.infNFe.total.IBSCBSTot.gMono");
+		decimal ibsMonoReten = temMono ? LerTotal("NFe.NFe.infNFe.total.IBSCBSTot.gMono.vIBSMonoReten") : 0m;
+		decimal cbsMonoReten = temMono ? LerTotal("NFe.NFe.infNFe.total.IBSCBSTot.gMono.vCBSMonoReten") : 0m;
+		bool temReten = temMono &amp;&amp; (ibsMonoReten.CompareTo(0m) != 0 || cbsMonoReten.CompareTo(0m) != 0);
 
-		//Despesas
-		Memo71.Left = 300f;
-		Memo71.Width = 100f;
-		Text164.Width = Memo71.Width;
-		Text164.Left = Memo71.Left;
+		QuadroIbsMono.Visible = temMono;
+		txtIbsMono.Visible = temMono;
+		QuadroCbsMono.Visible = temMono;
+		txtCbsMono.Visible = temMono;
+		QuadroIbsMonoReten.Visible = temReten;
+		txtIbsMonoReten.Visible = temReten;
+		QuadroCbsMonoReten.Visible = temReten;
+		txtCbsMonoReten.Visible = temReten;
 
-		//IPI
-		Memo69.Left = 400f;
-		Memo69.Width = 100f;
-		Text163.Width = Memo69.Width;
-		Text163.Left = Memo69.Left;
+		if (temMono)
+		{
+		txtIbsMono.Text = FormatarTotal(LerTotal("NFe.NFe.infNFe.total.IBSCBSTot.gMono.vIBSMono"));
+		txtCbsMono.Text = FormatarTotal(LerTotal("NFe.NFe.infNFe.total.IBSCBSTot.gMono.vCBSMono"));
+		txtIbsMonoReten.Text = FormatarTotal(ibsMonoReten);
+		txtCbsMonoReten.Text = FormatarTotal(cbsMonoReten);
+		TotalIbsCbs.Height = 70.45f;
+		}
+		else
+		{
+		TotalIbsCbs.Height = 44f;
+		}
+		}
 
-		//Valor Cofins
-		Text158.Left = 500f;
-		Text158.Width = 100f;
-		Text161.Width = Text158.Width;
-		Text161.Left = Text158.Left;
 
-		//Total Contábil
-		Memo79.Left = 600f;
-		Memo79.Width = 144.5f;
-		Memo80.Width = Memo79.Width;
-		Memo80.Left = Memo79.Left;
+
+		private void ImpostosComplementares_BeforePrint(object sender, EventArgs e)
+		{
+		string[] rotulos = new string[] {
+		"VALOR DO FCP",
+		"VALOR DO FCP RETIDO POR ST",
+		"VALOR DO DIFAL NA UF DE DESTINO",
+		"VALOR DO FCP NA UF DE DESTINO",
+		"BC DO ICMS MONOFÁSICO",
+		"VALOR DO ICMS MONOFÁSICO",
+		"BC DO ICMS MONOFÁSICO POR RETENÇÃO",
+		"VALOR DO ICMS MONOFÁSICO POR RETENÇÃO"
+		};
+		string[] colunas = new string[] {
+		"NFe.NFe.infNFe.total.ICMSTot.vFCP",
+		"NFe.NFe.infNFe.total.ICMSTot.vFCPST",
+		"NFe.NFe.infNFe.total.ICMSTot.vICMSUFDest",
+		"NFe.NFe.infNFe.total.ICMSTot.vFCPUFDest",
+		"NFe.NFe.infNFe.total.ICMSTot.qBCMono",
+		"NFe.NFe.infNFe.total.ICMSTot.vICMSMono",
+		"NFe.NFe.infNFe.total.ICMSTot.qBCMonoReten",
+		"NFe.NFe.infNFe.total.ICMSTot.vICMSMonoReten"
+		};
+		TextObject[] quadros = new TextObject[] { QComp0, QComp1, QComp2, QComp3, QComp4, QComp5, QComp6, QComp7 };
+		TextObject[] valores = new TextObject[] { VComp0, VComp1, VComp2, VComp3, VComp4, VComp5, VComp6, VComp7 };
+		int n = 0;
+		int i = 0;
+		while (i &lt; rotulos.Length)
+		{
+		decimal? valor = LerOpcional(colunas[i]);
+		bool mostra = valor.HasValue;
+		quadros[i].Visible = mostra;
+		valores[i].Visible = mostra;
+		if (mostra)
+		{
+		int coluna = n % 4;
+		int linha = n / 4;
+		float esquerda = coluna * 186.16f;
+		float topo = linha * 26.46f;
+		quadros[i].Left = esquerda;
+		quadros[i].Top = topo;
+		quadros[i].Width = 186.16f;
+		quadros[i].Text = rotulos[i];
+		valores[i].Left = esquerda + 0.4f;
+		valores[i].Top = topo + 8.2f;
+		valores[i].Width = 185f;
+		if (i == 4 || i == 6) valores[i].Text = valor.Value.ToString("N4", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"));
+		else valores[i].Text = FormatarTotal(valor.Value);
+		n = n + 1;
+		}
+		i = i + 1;
+		}
+		if (n == 0)
+		{
+		ImpostosComplementares.Visible = false;
+		ImpostosComplementares.Height = 0f;
+		}
+		else
+		{
+		int linhas = ((n - 1) / 4) + 1;
+		ImpostosComplementares.Visible = true;
+		ImpostosComplementares.Height = linhas * 26.46f;
 		}
 		}
 
@@ -462,8 +615,20 @@
 
 		_Tamanho += _TamanhoDuplicatas;
 
+		if (TotalProdutos.Visible)
+		_Tamanho += TotalProdutos.Height;
+
 		if (Imposto.Visible)
 		_Tamanho += Imposto.Height;
+
+		if (ImpostosComplementares.Visible)
+		_Tamanho += ImpostosComplementares.Height;
+
+		if (TotalIbsCbs.Visible)
+		_Tamanho += TotalIbsCbs.Height;
+
+		if (DadosISSQN.Visible)
+		_Tamanho += DadosISSQN.Height;
 
 		if (TransportadorVolumes.Visible)
 		_Tamanho += TransportadorVolumes.Height;
@@ -476,9 +641,7 @@
 		if (DadosProdutosFooter.Visible)
 		_Tamanho += DadosProdutosFooter.Height;
 
-		if (DadosISSQN.Visible)
-		_Tamanho += DadosISSQN.Height;
-
+		AplicarQrCode();
 		DadosAdicionais.CalcHeight();
 
 		if (DadosAdicionais.Visible)
@@ -852,6 +1015,39 @@
                 <Column Name="indISS" DataType="null"/>
               </Column>
               <Column Name="ICMSUFDest" Enabled="false" DataType="null"/>
+              <Column Name="IS" DataType="null">
+                <Column Name="vBCIS" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                <Column Name="pIS" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                <Column Name="vIS" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+              </Column>
+              <Column Name="IBSCBS" DataType="null">
+                <Column Name="CST" DataType="System.String"/>
+                <Column Name="cClassTrib" DataType="System.String"/>
+                <Column Name="gIBSCBS" DataType="null">
+                  <Column Name="vBC" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                  <Column Name="gIBSUF" DataType="null">
+                    <Column Name="pIBSUF" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                    <Column Name="gRed" DataType="null">
+                      <Column Name="pAliqEfet" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                    </Column>
+                    <Column Name="vIBSUF" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                  </Column>
+                  <Column Name="gIBSMun" DataType="null">
+                    <Column Name="pIBSMun" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                    <Column Name="gRed" DataType="null">
+                      <Column Name="pAliqEfet" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                    </Column>
+                    <Column Name="vIBSMun" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                  </Column>
+                  <Column Name="gCBS" DataType="null">
+                    <Column Name="pCBS" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                    <Column Name="gRed" DataType="null">
+                      <Column Name="pAliqEfet" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                    </Column>
+                    <Column Name="vCBS" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+                  </Column>
+                </Column>
+              </Column>
             </Column>
             <Column Name="impostoDevol" DataType="null">
               <Column Name="pDevol" DataType="System.Decimal"/>
@@ -890,6 +1086,10 @@
               <Column Name="vFCPSTRetSpecified" DataType="System.Boolean" BindableControl="CheckBox"/>
               <Column Name="vIPIDevol" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
               <Column Name="vIPIDevolSpecified" DataType="System.Boolean" BindableControl="CheckBox"/>
+              <Column Name="qBCMono" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+              <Column Name="vICMSMono" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+              <Column Name="qBCMonoReten" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+              <Column Name="vICMSMonoReten" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
             </Column>
             <Column Name="ISSQNtot" DataType="null">
               <Column Name="vServ" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
@@ -913,6 +1113,42 @@
               <Column Name="vIRRF" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
               <Column Name="vBCRetPrev" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
               <Column Name="vRetPrev" DataType="System.Nullable`1[[System.Decimal, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"/>
+            </Column>
+            <Column Name="ISTot" DataType="null">
+              <Column Name="vIS" DataType="System.Decimal"/>
+            </Column>
+            <Column Name="IBSCBSTot" DataType="null">
+              <Column Name="vBCIBSCBS" DataType="System.Decimal"/>
+              <Column Name="gIBS" DataType="null">
+                <Column Name="gIBSUF" DataType="null">
+                  <Column Name="vDif" DataType="System.Decimal"/>
+                  <Column Name="vDevTrib" DataType="System.Decimal"/>
+                  <Column Name="vIBSUF" DataType="System.Decimal"/>
+                </Column>
+                <Column Name="gIBSMun" DataType="null">
+                  <Column Name="vDif" DataType="System.Decimal"/>
+                  <Column Name="vDevTrib" DataType="System.Decimal"/>
+                  <Column Name="vIBSMun" DataType="System.Decimal"/>
+                </Column>
+                <Column Name="vIBS" DataType="System.Decimal"/>
+                <Column Name="vCredPres" DataType="System.Decimal"/>
+                <Column Name="vCredPresCondSus" DataType="System.Decimal"/>
+              </Column>
+              <Column Name="gCBS" DataType="null">
+                <Column Name="vDif" DataType="System.Decimal"/>
+                <Column Name="vDevTrib" DataType="System.Decimal"/>
+                <Column Name="vCBS" DataType="System.Decimal"/>
+                <Column Name="vCredPres" DataType="System.Decimal"/>
+                <Column Name="vCredPresCondSus" DataType="System.Decimal"/>
+              </Column>
+              <Column Name="gMono" DataType="null">
+                <Column Name="vIBSMono" DataType="System.Decimal"/>
+                <Column Name="vCBSMono" DataType="System.Decimal"/>
+                <Column Name="vIBSMonoReten" DataType="System.Decimal"/>
+                <Column Name="vCBSMonoReten" DataType="System.Decimal"/>
+                <Column Name="vIBSMonoRet" DataType="System.Decimal"/>
+                <Column Name="vCBSMonoRet" DataType="System.Decimal"/>
+              </Column>
             </Column>
           </Column>
           <Column Name="transp" DataType="null">
@@ -1139,7 +1375,7 @@
       <LineObject Name="Line1" Top="73.81" Width="744.57" Border.Style="Dot" Border.Width="0.5"/>
       <TextObject Name="Memo17" Left="642.52" Width="102.05" Height="68.03" Border.Lines="All" Border.Width="0.5" Text="NF-e&#13;&#10;Nº [Format(&quot;{0:000,000,000}&quot;,[NFe.NFe.infNFe.ide.nNF])]&#13;&#10;Série [Format(&quot;{0:000}&quot;, [NFe.NFe.infNFe.ide.serie])]" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 10pt, style=Bold"/>
     </ReportTitleBand>
-    <PageHeaderBand Name="Emitente" Top="80.98" Width="744.66" Height="173.86" BeforePrintEvent="Emitente_BeforePrint">
+    <PageHeaderBand Name="Emitente" Top="80.98" Width="744.66" Height="200.32" BeforePrintEvent="Emitente_BeforePrint">
       <TextObject Name="Memo12" Left="310.34" Top="16.9" Width="113.4" Height="26.46" CanShrink="true" Text="Documento Auxiliar da &#13;&#10;Nota Fiscal Eletrônica" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 8pt"/>
       <TextObject Name="Memo9" Left="309.92" Width="113.39" Height="120.94" Border.Lines="All" Border.Width="0.5" Text="DANFE" Padding="2, 2, 2, 2" HorzAlign="Center" Font="Times New Roman, 12pt, style=Bold"/>
       <TextObject Name="Memo15" Left="313.72" Top="41.9" Width="75.59" Height="32.13" Text="0 - ENTRADA&#13;&#10;1 - SAÍDA" Padding="2, 1, 2, 1" VertAlign="Center" Font="Times New Roman, 8pt"/>
@@ -1166,6 +1402,8 @@
       <BarcodeObject Name="BarCodeContigencia" Left="445.66" Top="83.16" Width="277.07" Height="34.02" ShiftMode="WhenOverlapped" AutoSize="false" Text="123456789012345678946546546579878454676546546546546556465" ShowText="false" AllowExpressions="true" Barcode="Code128" Barcode.CalcCheckSum="false" Barcode.AutoEncode="true"/>
       <TextObject Name="Text1" Left="94.4" Top="3" Width="214.83" Height="39.75" Text="[NFe.NFe.infNFe.emit.xNome]" HorzAlign="Center" Font="Times New Roman, 8pt, style=Bold"/>
       <TextObject Name="Text209" Left="94.44" Top="95.88" Width="215.34" Height="23.08" Text="[FormatarCampo(ToString([NFe.NFe.infNFe.emit.enderEmit.fone]), 'f')]" Padding="1, 0, 1, 1" Format="Custom" Format.Format="(00) 00000-0000" HorzAlign="Center" Font="Times New Roman, 7pt"/>
+      <TextObject Name="QuadroCrt" Top="173.86" Width="744.57" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="CÓDIGO DO REGIME TRIBUTÁRIO" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="txtCrt" Left="2" Top="182.3" Width="740" Height="17.01" Padding="5, 1, 5, 1" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
     </PageHeaderBand>
     <DataBand Name="Destinatario" Top="256.46" Width="744.66" Height="96.27">
       <TextObject Name="Memo29" Top="16.9" Width="468.66" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="NOME / RAZÃO SOCIAL" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
@@ -1254,38 +1492,90 @@
         <Sort Expression="[NFe.NFe.infNFe.cobr.dup.nDup]"/>
       </Sort>
     </DataBand>
-    <DataBand Name="Imposto" Top="663.43" Width="744.66" Height="70.45" BeforePrintEvent="Imposto_BeforePrint">
-      <TextObject Name="QuadroPIS" Left="490.27" Top="17.01" Width="106.97" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO PIS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+        <DataBand Name="TotalProdutos" Width="744.66" Height="70.45">
+      <TextObject Name="TituloTotalProdutos" Top="3.78" Width="430.87" Height="13.23" Text="TOTAL DOS PRODUTOS E TOTAL DA NOTA" Padding="0, 1, 0, 1" VertAlign="Bottom" Font="Times New Roman, 7pt, style=Bold"/>
+      <TextObject Name="Memo67" Left="0" Top="17.12" Width="148.932" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR TOTAL DOS PRODUTOS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Text159" Left="0.40" Top="25.35" Width="147.73" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vProd]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Left="148.932" Name="Memo77" Top="17.12" Width="148.932" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO FRETE" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Text167" Left="149.33" Top="25.35" Width="147.73" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vFrete]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Memo75" Left="297.864" Top="17.12" Width="148.932" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO SEGURO" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Text166" Left="298.26" Top="25.35" Width="147.73" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vSeg]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Memo73" Left="446.796" Top="17.12" Width="148.932" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="DESCONTO" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Text165" Left="447.20" Top="25.35" Width="147.73" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vDesc]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Memo71" Left="595.728" Top="17.12" Width="148.932" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="OUTRAS DESPESAS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Text164" Left="596.13" Top="25.35" Width="147.73" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vOutro]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Memo79" Left="0" Top="43.58" Width="744.66" Height="26.46" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="VALOR TOTAL DA NOTA" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Memo80" Left="0.4" Top="52.02" Width="743.4" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vNF]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt, style=Bold"/>
+    </DataBand>
+<DataBand Name="Imposto" Top="663.43" Width="744.66" Height="44" BeforePrintEvent="Imposto_BeforePrint">
+      <TextObject Visible="false" Name="QuadroPIS" Left="490.27" Top="17.01" Width="106.97" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO PIS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
       <TextObject Name="QuadroVTOTTRIB" Left="497.85" Top="16.9" Width="99.52" Height="26.46" Visible="false" Border.Lines="All" Border.Width="0.5" Text="Total dos Tributos (Fonte: IBPT)" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo58" Top="3.78" Width="430.87" Height="13.23" Text="CÁLCULO DO IMPOSTO" Padding="0, 1, 0, 1" VertAlign="Bottom" Font="Times New Roman, 7pt, style=Bold"/>
-      <TextObject Name="QuadroVBC" Top="17.12" Width="114.9" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="BASE DE CÁLCULO DO ICMS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="QuadroVICMS" Left="114.9" Top="17.12" Width="114.9" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO ICMS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="QuadroVBCST" Left="229.8" Top="17.12" Width="128.5" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="BASE DE CÁLCULO DO ICMS SUBST." Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="QuadrovST" Left="358.3" Top="17.12" Width="131.92" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO ICMS SUBST." Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo67" Left="597.17" Top="17.12" Width="147.4" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR TOTAL DOS PRODUTOS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo69" Left="311.47" Top="43.57" Width="96.56" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO IPI" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo71" Left="239.43" Top="43.57" Width="71.34" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="OUTRAS DESPESAS " Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo73" Left="171.23" Top="43.57" Width="68.08" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="DESCONTO" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo75" Left="99.79" Top="43.57" Width="71.44" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO SEGURO" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo77" Top="43.57" Width="99.79" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO FRETE" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo79" Left="597.17" Top="43.57" Width="147.4" Height="26.46" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="VALOR TOTAL DA NOTA" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo80" Left="597.62" Top="52.02" Width="146.66" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vNF]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt, style=Bold"/>
-      <TextObject Name="Text158" Left="490.27" Top="43.47" Width="106.97" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO COFINS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Text159" Left="597.62" Top="25.35" Width="146.66" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vProd]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text160" Left="490.64" Top="25.35" Width="106.22" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vPIS]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text161" Left="490.64" Top="52.25" Width="106.22" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vCOFINS]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text162" Left="358.72" Top="25.35" Width="131.54" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vST]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text163" Left="312.37" Top="52.16" Width="93.51" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vIPI]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text164" Left="240.89" Top="52.16" Width="68.4" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vOutro]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text165" Left="171.61" Top="52.16" Width="66.06" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vDesc]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text166" Left="100.17" Top="52.16" Width="71.06" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vSeg]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text167" Left="0.38" Top="52.16" Width="99.41" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vFrete]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text168" Left="230.2" Top="25.33" Width="128.14" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vBCST]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text169" Left="115.29" Top="25.33" Width="114.53" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vICMS]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text170" Left="0.38" Top="25.33" Width="114.53" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vBC]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Memo58" Top="3.78" Width="430.87" Height="13.23" Text="TOTAL DO ICMS / IPI" Padding="0, 1, 0, 1" VertAlign="Bottom" Font="Times New Roman, 7pt, style=Bold"/>
+      <TextObject Left="0" Name="QuadroVBC" Top="17.12" Width="148.932" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="BASE DE CÁLCULO DO ICMS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="QuadroVICMS" Left="148.932" Top="17.12" Width="148.932" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO ICMS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="QuadroVBCST" Left="297.864" Top="17.12" Width="148.932" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="BASE DE CÁLCULO DO ICMS ST" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="QuadrovST" Left="446.796" Top="17.12" Width="148.932" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO ICMS ST" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Memo69" Left="595.728" Top="17.12" Width="148.932" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO IPI" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Visible="false" Name="Text158" Left="490.27" Top="43.47" Width="106.97" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO COFINS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Visible="false" Name="Text160" Left="490.64" Top="25.35" Width="106.22" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vPIS]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Visible="false" Name="Text161" Left="490.64" Top="52.25" Width="106.22" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vCOFINS]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Text162" Left="447.20" Top="25.33" Width="147.73" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vST]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Text163" Left="596.13" Top="25.33" Width="147.73" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vIPI]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Text168" Left="298.26" Top="25.33" Width="147.73" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vBCST]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Text169" Left="149.33" Top="25.33" Width="147.73" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vICMS]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Text170" Left="0.40" Top="25.33" Width="147.73" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vBC]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
       <TextObject Name="txtIbptValor" Left="499.85" Top="25.35" Width="96.22" Height="17.01" Visible="false" Text="[NFe.NFe.infNFe.total.ICMSTot.vTotTrib]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Text210" Left="407.67" Top="43.54" Width="82.53" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO IPI DEVOL" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Text211" Left="408.63" Top="51.9" Width="80.78" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vIPIDevol]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Visible="false" Name="Text210" Left="407.67" Top="43.54" Width="82.53" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO IPI DEVOL" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Visible="false" Name="Text211" Left="408.63" Top="51.9" Width="80.78" Height="17.01" Text="[NFe.NFe.infNFe.total.ICMSTot.vIPIDevol]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.NegativePattern="1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+    
+    </DataBand>
+    <DataBand Name="ImpostosComplementares" Width="744.66" Height="26.46" CanShrink="true" BeforePrintEvent="ImpostosComplementares_BeforePrint">
+      <TextObject Name="QComp0" Width="186.16" Height="26.46" Visible="false" Border.Lines="All" Border.Width="0.5" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="VComp0" Width="185" Height="17.01" Visible="false" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QComp1" Width="186.16" Height="26.46" Visible="false" Border.Lines="All" Border.Width="0.5" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="VComp1" Width="185" Height="17.01" Visible="false" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QComp2" Width="186.16" Height="26.46" Visible="false" Border.Lines="All" Border.Width="0.5" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="VComp2" Width="185" Height="17.01" Visible="false" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QComp3" Width="186.16" Height="26.46" Visible="false" Border.Lines="All" Border.Width="0.5" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="VComp3" Width="185" Height="17.01" Visible="false" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QComp4" Width="186.16" Height="26.46" Visible="false" Border.Lines="All" Border.Width="0.5" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="VComp4" Width="185" Height="17.01" Visible="false" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QComp5" Width="186.16" Height="26.46" Visible="false" Border.Lines="All" Border.Width="0.5" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="VComp5" Width="185" Height="17.01" Visible="false" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QComp6" Width="186.16" Height="26.46" Visible="false" Border.Lines="All" Border.Width="0.5" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="VComp6" Width="185" Height="17.01" Visible="false" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QComp7" Width="186.16" Height="26.46" Visible="false" Border.Lines="All" Border.Width="0.5" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="VComp7" Width="185" Height="17.01" Visible="false" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+    </DataBand>
+    <DataBand Name="TotalIbsCbs" Top="735.5" Width="744.66" Height="70.45" BeforePrintEvent="TotalIbsCbs_BeforePrint">
+      <TextObject Name="MemoTotalIbsCbs" Top="3.78" Width="430.87" Height="13.23" Text="TOTAL DO IBS / CBS / IS" Padding="0, 1, 0, 1" VertAlign="Bottom" Font="Times New Roman, 7pt, style=Bold"/>
+      <TextObject Name="QuadroCbs" Left="0" Top="17.12" Width="186.16" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DA CBS" Padding="2, 2, 2, 2" WordWrap="false" Font="Times New Roman, 5pt"/>
+      <TextObject Name="txtCbs" Left="0.4" Top="25.33" Width="185.06" Height="17.01" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QuadroIbsUf" Left="186.16" Top="17.12" Width="186.17" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO IBS UF" Padding="2, 2, 2, 2" WordWrap="false" Font="Times New Roman, 5pt"/>
+      <TextObject Name="txtIbsUf" Left="186.56" Top="25.33" Width="185.07" Height="17.01" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QuadroIbsMun" Left="372.33" Top="17.12" Width="186.16" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO IBS MUNICÍPIO" Padding="2, 2, 2, 2" WordWrap="false" Font="Times New Roman, 5pt"/>
+      <TextObject Name="txtIbsMun" Left="372.73" Top="25.33" Width="185.06" Height="17.01" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QuadroIs" Left="558.49" Top="17.12" Width="186.17" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO IMPOSTO SELETIVO" Padding="2, 2, 2, 2" WordWrap="false" Font="Times New Roman, 5pt"/>
+      <TextObject Name="txtIs" Left="558.89" Top="25.33" Width="185.07" Height="17.01" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QuadroIbsMono" Left="0" Top="43.57" Width="186.16" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO IBS MONOFÁSICO" Padding="2, 2, 2, 2" WordWrap="false" Font="Times New Roman, 5pt"/>
+      <TextObject Name="txtIbsMono" Left="0.4" Top="52.16" Width="185.06" Height="17.01" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QuadroCbsMono" Left="186.16" Top="43.57" Width="186.17" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DA CBS MONOFÁSICA" Padding="2, 2, 2, 2" WordWrap="false" Font="Times New Roman, 5pt"/>
+      <TextObject Name="txtCbsMono" Left="186.56" Top="52.16" Width="185.07" Height="17.01" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QuadroIbsMonoReten" Left="372.33" Top="43.57" Width="186.16" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DO IBS MONOFÁSICO POR RETENÇÃO" Padding="2, 2, 2, 2" WordWrap="false" Font="Times New Roman, 5pt"/>
+      <TextObject Name="txtIbsMonoReten" Left="372.73" Top="52.16" Width="185.06" Height="17.01" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+      <TextObject Name="QuadroCbsMonoReten" Left="558.49" Top="43.57" Width="186.17" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR DA CBS MONOFÁSICA POR RETENÇÃO" Padding="2, 2, 2, 2" WordWrap="false" Font="Times New Roman, 5pt"/>
+      <TextObject Name="txtCbsMonoReten" Left="558.89" Top="52.16" Width="185.07" Height="17.01" Padding="5, 1, 5, 1" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
+    </DataBand>
+    <DataBand Name="DadosISSQN" Top="900.37" Width="744.66" Height="40.25" CanGrow="true" CanShrink="true">
+      <TextObject Name="Memo5" Width="430.87" Height="13.23" Text="CÁLCULO DO ISSQN" Padding="0, 1, 0, 1" VertAlign="Bottom" Font="Times New Roman, 7pt, style=Bold"/>
+      <TextObject Name="Memo7" Top="13.12" Width="217.32" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="INSCRIÇÃO MUNICIPAL" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Memo59" Top="22.57" Width="217.32" Height="17.01" Text="[NFe.NFe.infNFe.emit.IM]" Padding="5, 1, 5, 1" VertAlign="Bottom" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Memo60" Left="217.32" Top="13.12" Width="179.53" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR TOTAL DOS SERVIÇOS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Memo61" Left="217.32" Top="22.57" Width="179.53" Height="17.01" Text="[NFe.NFe.infNFe.total.ISSQNtot.vServ]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Bottom" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Memo62" Left="396.85" Top="13.12" Width="179.53" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="BASE DE CÁLCULO DO ISSQN" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Memo63" Left="396.85" Top="22.57" Width="179.53" Height="17.01" Text="[NFe.NFe.infNFe.total.ISSQNtot.vBC]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Bottom" Font="Times New Roman, 8pt"/>
+      <TextObject Name="Memo64" Left="576.38" Top="13.12" Width="168.21" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR TOTAL DO ISSQN" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
+      <TextObject Name="Memo65" Left="576.38" Top="22.57" Width="167.08" Height="17.01" Text="[NFe.NFe.infNFe.total.ISSQNtot.vISS]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Bottom" Font="Times New Roman, 8pt"/>
     </DataBand>
     <DataBand Name="TransportadorVolumes" Top="735.5" Width="744.66" Height="96.38">
       <TextObject Name="Memo82" Left="0.41" Top="4.08" Width="430.87" Height="13.23" Text="TRANSPORTADOR / VOLUMES TRANSPORTADOS" Padding="0, 1, 0, 1" Font="Times New Roman, 7pt, style=Bold"/>
@@ -1323,81 +1613,50 @@
       <TextObject Name="Memo114" Left="636.22" Top="79.37" Width="108.35" Height="17.01" Text="[NFe.NFe.infNFe.transp.vol.pesoL]" Padding="5, 1, 5, 1" HideValue="0" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Bottom" WordWrap="false" Font="Times New Roman, 8pt"/>
     </DataBand>
     <DataBand Name="DadosProdutos" Top="876.35" Width="744.66" Height="11.34" CanGrow="true" CanShrink="true" BeforePrintEvent="DadosProdutos_BeforePrint" AfterPrintEvent="DadosProdutos_AfterPrint" Guides="0" DataSource="det">
-      <TableObject Name="prodTable" Width="744.66" Height="11.34">
-        <TableColumn Name="prodCodigo" Width="60.48"/>
-        <TableColumn Name="prodNome" Width="223.02"/>
-        <TableColumn Name="prodNCM" Width="37.8"/>
-        <TableColumn Name="prodOrigin" Width="26.46"/>
-        <TableColumn Name="prodCFOP" Width="24.95"/>
-        <TableColumn Name="prodUnidade" Width="22.3"/>
-        <TableColumn Name="prodQtd" Width="43.47"/>
-        <TableColumn Name="prodValorUnitario" Width="52.92"/>
-        <TableColumn Name="prodDesconto" Width="45.36"/>
-        <TableColumn Name="prodValor" Width="41.58"/>
-        <TableColumn Name="prodBc" Width="41.58"/>
-        <TableColumn Name="prodICMS" Width="41.58"/>
-        <TableColumn Name="prodIPI" Width="41.58"/>
-        <TableColumn Name="prodAlqICMS" Width="20.79"/>
-        <TableColumn Name="prodAlqIPI" Width="20.79"/>
-        <TableRow Name="prodRow" Height="11.34" AutoSize="true">
-          <TableCell Name="prodCodigoCell" Border.Lines="Left, Right, Bottom" Border.LeftLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Text="[NFe.NFe.infNFe.det.prod.cProd]" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodNomeCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Text="[NFe.NFe.infNFe.det.prod.xProd][IIf([NFe.NFe.infNFe.det.infAdProd] == null || [NFe.NFe.infNFe.det.infAdProd] == &quot;&quot;, &quot;&quot;, &quot; &quot; + [NFe.NFe.infNFe.det.infAdProd])]" HorzAlign="Justify" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodNCMCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Text="[NFe.NFe.infNFe.det.prod.NCM]" Padding="1, 1, 1, 1" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodOriginCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodCFOPCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Text="[NFe.NFe.infNFe.det.prod.CFOP]" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodUnidadeCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodQtdCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" HorzAlign="Right" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodValorUnitarioCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" HorzAlign="Right" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodDescontoCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" HorzAlign="Right" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodValorCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" HorzAlign="Right" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodBcCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" HorzAlign="Right" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodICMSCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" HorzAlign="Right" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodIPICell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" HorzAlign="Right" VertAlign="Center" Font="Times New Roman, 6pt"/>
-          <TableCell Name="prodAlqICMSCell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Padding="1, 1, 1, 1" Format="Percent" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 5pt"/>
-          <TableCell Name="prodAlqIPICell" Border.Lines="Right, Bottom" Border.LeftLine.Width="0.5" Border.TopLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Padding="1, 1, 1, 1" Format="Percent" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 5pt"/>
+            <TableObject Name="prodTable" Width="744.66" Height="28">
+        <TableColumn Name="prodNome" Width="186"/>
+        <TableColumn Name="prodCstCfop" Width="62"/>
+        <TableColumn Name="prodQtdUn" Width="64"/>
+        <TableColumn Name="prodValorUnitario" Width="70"/>
+        <TableColumn Name="prodValor" Width="70"/>
+        <TableColumn Name="prodBases" Width="100"/>
+        <TableColumn Name="prodAliq" Width="100"/>
+        <TableColumn Name="prodTrib" Width="92.66"/>
+        <TableRow Name="prodRow" Height="28" AutoSize="true">
+          <TableCell Name="prodNomeCell" Border.Lines="Left, Right, Bottom" Border.LeftLine.Width="0.5" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Padding="2, 1, 2, 1" HorzAlign="Left" VertAlign="Center" WordWrap="false" Font="Times New Roman, 6pt"/>
+          <TableCell Name="prodCstCfopCell" Border.Lines="Right, Bottom" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Padding="2, 1, 2, 1" HorzAlign="Left" VertAlign="Center" WordWrap="false" Font="Times New Roman, 6pt"/>
+          <TableCell Name="prodQtdUnCell" Border.Lines="Right, Bottom" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Padding="2, 1, 2, 1" HorzAlign="Left" VertAlign="Center" WordWrap="false" Font="Times New Roman, 6pt"/>
+          <TableCell Name="prodValorUnitarioCell" Border.Lines="Right, Bottom" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Padding="2, 1, 2, 1" HorzAlign="Left" VertAlign="Center" WordWrap="false" Font="Times New Roman, 6pt"/>
+          <TableCell Name="prodValorCell" Border.Lines="Right, Bottom" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Padding="2, 1, 2, 1" HorzAlign="Left" VertAlign="Center" WordWrap="false" Font="Times New Roman, 6pt"/>
+          <TableCell Name="prodBasesCell" Border.Lines="Right, Bottom" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Padding="2, 1, 2, 1" HorzAlign="Left" VertAlign="Center" WordWrap="false" Font="Times New Roman, 6pt"/>
+          <TableCell Name="prodAliqCell" Border.Lines="Right, Bottom" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Padding="2, 1, 2, 1" HorzAlign="Left" VertAlign="Center" WordWrap="false" Font="Times New Roman, 6pt"/>
+          <TableCell Name="prodTribCell" Border.Lines="Right, Bottom" Border.RightLine.Width="0.5" Border.BottomLine.Style="Dot" Border.BottomLine.Width="0.5" Padding="2, 1, 2, 1" HorzAlign="Left" VertAlign="Center" WordWrap="false" Font="Times New Roman, 6pt"/>
         </TableRow>
       </TableObject>
-      <DataHeaderBand Name="DadosProdutosHeader" Top="833.49" Width="744.66" Height="41.25" BeforePrintEvent="DadosProdutosHeader_BeforePrint">
-        <TextObject Name="Memo129" Left="702.99" Top="29.68" Width="20.79" Height="11.34" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="ICMS" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo130" Left="723.78" Top="29.68" Width="20.79" Height="11.34" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="IPI" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo116" Top="18.34" Width="60.47" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="CÓDIGO&#13;&#10;PRODUTO" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo117" Left="60.47" Top="18.34" Width="222.99" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="DESCRIÇÃO DO PRODUTO / SERVIÇO" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo118" Left="283.46" Top="18.34" Width="37.8" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="NCM/SH" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo119" Left="321.26" Top="18.34" Width="26.46" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="O/CST" Padding="2, 2, 2, 2" HorzAlign="Right" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo120" Left="347.72" Top="18.34" Width="24.95" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="CFOP" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo121" Left="372.71" Top="18.34" Width="22.3" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="UNID." Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo122" Left="394.96" Top="18.34" Width="43.46" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="QTDE." Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo123" Left="438.43" Top="18.34" Width="52.91" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="VALOR&#13;&#10;UNITÁRIO" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo124" Left="491.34" Top="18.34" Width="45.35" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="[IIf([ImprimirDescPorc],&quot;%&quot;, &quot;VALOR&quot;)]&#13;&#10;DESCONTO" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo125" Left="536.69" Top="18.34" Width="41.57" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="VALOR&#13;&#10;[IIf([ImprimirTotalLiquido], &quot;LÍQUIDO&quot;, &quot;TOTAL&quot;)]" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo126" Left="578.27" Top="18.34" Width="41.57" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="BASE DE &#13;&#10;CÁLC. ICMS" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo127" Left="619.84" Top="18.34" Width="41.57" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="VALOR&#13;&#10;ICMS" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo128" Left="661.42" Top="18.34" Width="41.57" Height="22.68" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="VALOR&#13;&#10;IPI" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
-        <TextObject Name="Memo189" Left="702.99" Top="18.34" Width="41.57" Height="11.34" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="ALÍQ. %" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="Times New Roman, 5pt"/>
+            <DataHeaderBand Name="DadosProdutosHeader" Top="833.49" Width="744.66" Height="46" BeforePrintEvent="DadosProdutosHeader_BeforePrint">
         <TextObject Name="Memo115" Top="3.78" Width="430.87" Height="13.23" Text="DADOS DOS PRODUTOS / SERVIÇOS" Padding="0, 1, 0, 1" VertAlign="Bottom" Font="Times New Roman, 7pt, style=Bold"/>
+        <TextObject Name="Memo116" Left="0" Top="17" Width="186" Height="28" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="DESCRIÇÃO DO PRODUTO / SERVIÇO" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 5pt"/>
+        <TextObject Name="Memo117" Left="186" Top="17" Width="62" Height="28" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="CST /&#13;&#10;CFOP" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 5pt"/>
+        <TextObject Name="Memo118" Left="248" Top="17" Width="64" Height="28" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="QTD / UN" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 5pt"/>
+        <TextObject Name="Memo119" Left="312" Top="17" Width="70" Height="28" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="VALOR&#13;&#10;UNITÁRIO" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 5pt"/>
+        <TextObject Name="Memo120" Left="382" Top="17" Width="70" Height="28" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="VALOR&#13;&#10;TOTAL" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 5pt"/>
+        <TextObject Name="Memo121" Left="452" Top="17" Width="100" Height="28" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="BASES DE&#13;&#10;CÁLCULO" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 5pt"/>
+        <TextObject Name="Memo122" Left="552" Top="17" Width="100" Height="28" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="ALÍQUOTAS" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 5pt"/>
+        <TextObject Name="Memo123" Left="652" Top="17" Width="92.66" Height="28" Border.Lines="All" Border.Width="0.5" Fill.Color="Gainsboro" Text="VALOR DOS&#13;&#10;TRIBUTOS" Padding="2, 2, 2, 2" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 5pt"/>
       </DataHeaderBand>
       <DataFooterBand Name="DadosProdutosFooter" Top="889.3" Width="744.66" Height="9.45"/>
       <Sort>
         <Sort Expression="[NFe.NFe.infNFe.det.nItem]"/>
       </Sort>
     </DataBand>
-    <DataBand Name="DadosISSQN" Top="900.37" Width="744.66" Height="40.25" CanGrow="true" CanShrink="true">
-      <TextObject Name="Memo5" Width="430.87" Height="13.23" Text="CÁLCULO DO ISSQN" Padding="0, 1, 0, 1" VertAlign="Bottom" Font="Times New Roman, 7pt, style=Bold"/>
-      <TextObject Name="Memo7" Top="13.12" Width="217.32" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="INSCRIÇÃO MUNICIPAL" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo59" Top="22.57" Width="217.32" Height="17.01" Text="[NFe.NFe.infNFe.emit.IM]" Padding="5, 1, 5, 1" VertAlign="Bottom" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Memo60" Left="217.32" Top="13.12" Width="179.53" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR TOTAL DOS SERVIÇOS" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo61" Left="217.32" Top="22.57" Width="179.53" Height="17.01" Text="[NFe.NFe.infNFe.total.ISSQNtot.vServ]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Bottom" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Memo62" Left="396.85" Top="13.12" Width="179.53" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="BASE DE CÁLCULO DO ISSQN" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo63" Left="396.85" Top="22.57" Width="179.53" Height="17.01" Text="[NFe.NFe.infNFe.total.ISSQNtot.vBC]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Bottom" Font="Times New Roman, 8pt"/>
-      <TextObject Name="Memo64" Left="576.38" Top="13.12" Width="168.21" Height="26.46" Border.Lines="All" Border.Width="0.5" Text="VALOR TOTAL DO ISSQN" Padding="2, 2, 2, 2" Font="Times New Roman, 5pt"/>
-      <TextObject Name="Memo65" Left="576.38" Top="22.57" Width="167.08" Height="17.01" Text="[NFe.NFe.infNFe.total.ISSQNtot.vISS]" Padding="5, 1, 5, 1" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Bottom" Font="Times New Roman, 8pt"/>
-    </DataBand>
-    <PageFooterBand Name="DadosAdicionais" Top="942.23" Width="744.66" Height="60.15" CanGrow="true" PrintOn="FirstPage">
+    <PageFooterBand Name="DadosAdicionais" Top="942.23" Width="744.66" Height="60.15" CanGrow="true" PrintOn="FirstPage" BeforePrintEvent="DadosAdicionais_BeforePrint">
       <TextObject Name="Text155" Top="13.46" Width="470.06" Height="45.36" Border.Lines="All" Border.Width="0.5" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="INFORMAÇÕES COMPLEMENTARES" Padding="2, 2, 2, 0" Font="Times New Roman, 5pt, style=Bold"/>
       <TextObject Name="TextInfAdicionais" Left="1.45" Top="26.91" Width="468.5" Height="29.8" CanGrow="true" GrowToBottom="true" CanBreak="false" Font="Times New Roman, 8pt"/>
       <TextObject Name="Text156" Left="470.5" Top="13.46" Width="274.06" Height="45.36" Border.Lines="All" Border.Width="0.5" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="RESERVADO AO FISCO" Padding="2, 2, 2, 0" Font="Times New Roman, 5pt, style=Bold"/>
       <TextObject Name="Text37" Left="472.5" Top="26.91" Width="270.05" Height="29.8" CanGrow="true" GrowToBottom="true" CanBreak="false" Text="[NFe.protNFe.infProt.cMsg] [NFe.protNFe.infProt.xMsg]" Font="Times New Roman, 8pt"/>
       <TextObject Name="Text157" Left="1.89" Top="1.89" Width="124.65" Height="9.35" Text="DADOS ADICIONAIS" Padding="0, 0, 0, 0" VertAlign="Center" Font="Times New Roman, 8pt, style=Bold"/>
+      <TextObject Name="QuadroQr" Left="624.66" Top="13.46" Width="120" Height="110" Visible="false" Border.Lines="All" Border.Width="0.5" GrowToBottom="true" CanBreak="false" Text="QR CODE" Padding="2, 2, 2, 0" HorzAlign="Center" Font="Times New Roman, 5pt, style=Bold"/>
+      <BarcodeObject Name="bcoQrDanfe" Left="639.66" Top="28" Width="90" Height="90" Visible="false" AutoSize="false" ShowText="false" AllowExpressions="true" Barcode="QR Code" Barcode.ErrorCorrection="M" Barcode.Encoding="UTF8" Barcode.QuietZone="true"/>
       <ChildBand Name="Rodape" Top="1003.99" Width="744.66" Height="16.9" PrintOn="FirstPage" BeforePrintEvent="Rodape_BeforePrint">
         <TextObject Name="memDataHora" Top="2" Width="445.98" Height="13.23" Text="DATA E HORA DA IMPRESSÃO: [FormatDateTime([DataHoraImpressao], &quot;dd/MM/yyyy HH:mm:ss&quot;)]" Padding="2, 1, 2, 1" Font="Times New Roman, 6pt"/>
         <TextObject Name="memSistema" Left="453.54" Top="2" Width="291.02" Height="13.23" Text="[Desenvolvedor]" Padding="2, 1, 2, 1" HorzAlign="Right" Font="Times New Roman, 6pt"/>
